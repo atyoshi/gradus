@@ -1,0 +1,1160 @@
+{
+  "coverage": {
+    "2v species 1": {
+      "all": 10,
+      "checked": 10
+    },
+    "2v species 2": {
+      "all": 12,
+      "checked": 10
+    },
+    "2v species 3": {
+      "all": 6,
+      "checked": 5
+    },
+    "2v species 4": {
+      "all": 6,
+      "checked": 6
+    },
+    "2v species 5": {
+      "all": 12,
+      "checked": 12
+    },
+    "3v species 1": {
+      "all": 16,
+      "checked": 15
+    },
+    "3v species 2": {
+      "all": 9,
+      "checked": 9
+    },
+    "3v species 3": {
+      "all": 5,
+      "checked": 2
+    },
+    "3v species 4": {
+      "all": 9,
+      "checked": 9
+    },
+    "3v species 5": {
+      "all": 6,
+      "checked": 5
+    },
+    "4v species 1": {
+      "all": 11,
+      "checked": 9
+    },
+    "4v species 2": {
+      "all": 4,
+      "checked": 4
+    },
+    "4v species 3": {
+      "all": 8,
+      "checked": 3
+    },
+    "4v species 4": {
+      "all": 5,
+      "checked": 4
+    },
+    "4v species 5": {
+      "all": 4,
+      "checked": 3
+    }
+  },
+  "scores": [
+    {
+      "id": "gap_005",
+      "species": 1,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_006",
+      "species": 1,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_011",
+      "species": 1,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_012",
+      "species": 1,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_013",
+      "species": 1,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_014",
+      "species": 1,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_015",
+      "species": 1,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_021",
+      "species": 1,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_022",
+      "species": 1,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_023",
+      "species": 1,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_033",
+      "species": 2,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_035",
+      "species": 2,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_036",
+      "species": 2,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_037",
+      "species": 2,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_038",
+      "species": 2,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_039",
+      "species": 2,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_040",
+      "species": 2,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_041",
+      "species": 2,
+      "voices": 2,
+      "verified": false,
+      "errors": []
+    },
+    {
+      "id": "gap_042",
+      "species": 2,
+      "voices": 2,
+      "verified": false,
+      "errors": []
+    },
+    {
+      "id": "gap_043",
+      "species": 2,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_044",
+      "species": 2,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_045",
+      "species": 2,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_055",
+      "species": 3,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_056",
+      "species": 3,
+      "voices": 2,
+      "verified": false,
+      "errors": []
+    },
+    {
+      "id": "gap_057",
+      "species": 3,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_058",
+      "species": 3,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_059",
+      "species": 3,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_060",
+      "species": 3,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_073",
+      "species": 4,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_074",
+      "species": 4,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_075",
+      "species": 4,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_076",
+      "species": 4,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_077",
+      "species": 4,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_078",
+      "species": 4,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_082",
+      "species": 5,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_083",
+      "species": 5,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_084a",
+      "species": 5,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_084b",
+      "species": 5,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_085a",
+      "species": 5,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_085b",
+      "species": 5,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_086a",
+      "species": 5,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_086b",
+      "species": 5,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_087a",
+      "species": 5,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_087b",
+      "species": 5,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_088a",
+      "species": 5,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_088b",
+      "species": 5,
+      "voices": 2,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_101",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_104",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_105",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_106",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_108",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_109",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_110",
+      "species": 1,
+      "voices": 3,
+      "verified": false,
+      "errors": []
+    },
+    {
+      "id": "gap_111",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_112",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_113",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_114",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_115",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_116",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_117",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_118",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_119",
+      "species": 1,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_121",
+      "species": 2,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_122",
+      "species": 2,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_123",
+      "species": 2,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_124",
+      "species": 2,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_125",
+      "species": 2,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_126",
+      "species": 2,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_127",
+      "species": 2,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_128",
+      "species": 2,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_129",
+      "species": 2,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_130",
+      "species": 3,
+      "voices": 3,
+      "verified": false,
+      "errors": []
+    },
+    {
+      "id": "gap_131",
+      "species": 3,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_132",
+      "species": 3,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_133",
+      "species": 3,
+      "voices": 3,
+      "verified": false,
+      "errors": []
+    },
+    {
+      "id": "gap_134",
+      "species": 3,
+      "voices": 3,
+      "verified": false,
+      "errors": [
+        {
+          "rule": "dissonance",
+          "message": "On the fourth quarter, use a passing tone by step in the same direction or a neighbour that steps away and returns; both surrounding notes must be consonant.",
+          "notes": [
+            "v2n44",
+            "v3n40"
+          ],
+          "severity": "error",
+          "source": "Fux (1725), pp. 56–59, 63–64.",
+          "lessonId": "passing",
+          "basis": "rule",
+          "details": "Voice 2: B3, bar 6, beat 3; Voice 3: F3, bar 6, beat 1",
+          "action": "Write the consonant notes first, then fill the gap by step in the same direction. A dissonance on the third quarter needs consonant second and fourth quarters around it.",
+          "reference": {
+            "title": "Gradus ad Parnassum (1725)",
+            "url": "https://www.digital.wienbibliothek.at/wbrobv/content/titleinfo/4118035",
+            "pages": "56–59, 63–64"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gap_141",
+      "species": 4,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_143",
+      "species": 4,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_144",
+      "species": 4,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_146",
+      "species": 4,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_147",
+      "species": 4,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_148",
+      "species": 4,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_149",
+      "species": 4,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_150",
+      "species": 4,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_151",
+      "species": 4,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_154",
+      "species": 5,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_155",
+      "species": 5,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_156",
+      "species": 5,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_157",
+      "species": 5,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_158",
+      "species": 5,
+      "voices": 3,
+      "verified": false,
+      "errors": []
+    },
+    {
+      "id": "gap_159",
+      "species": 5,
+      "voices": 3,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_160",
+      "species": 1,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_163",
+      "species": 1,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_164",
+      "species": 1,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_165",
+      "species": 1,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_166",
+      "species": 1,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_167",
+      "species": 1,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_168",
+      "species": 1,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_169",
+      "species": 1,
+      "voices": 4,
+      "verified": false,
+      "errors": []
+    },
+    {
+      "id": "gap_170",
+      "species": 1,
+      "voices": 4,
+      "verified": false,
+      "errors": []
+    },
+    {
+      "id": "gap_171",
+      "species": 1,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_172",
+      "species": 1,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_173",
+      "species": 2,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_174",
+      "species": 2,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_175",
+      "species": 2,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_176",
+      "species": 2,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_177",
+      "species": 3,
+      "voices": 4,
+      "verified": false,
+      "errors": []
+    },
+    {
+      "id": "gap_180",
+      "species": 3,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_181",
+      "species": 3,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_182",
+      "species": 3,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_183",
+      "species": 3,
+      "voices": 4,
+      "verified": false,
+      "errors": [
+        {
+          "rule": "dissonance",
+          "message": "On the fourth quarter, use a passing tone by step in the same direction or a neighbour that steps away and returns; both surrounding notes must be consonant.",
+          "notes": [
+            "v1n6",
+            "v3n0"
+          ],
+          "severity": "error",
+          "source": "Fux (1725), pp. 56–59, 63–64.",
+          "lessonId": "passing",
+          "basis": "rule",
+          "details": "Voice 1: C5, bar 1, beat 4; Voice 3: G♯3, bar 1, beat 1",
+          "action": "Write the consonant notes first, then fill the gap by step in the same direction. A dissonance on the third quarter needs consonant second and fourth quarters around it.",
+          "reference": {
+            "title": "Gradus ad Parnassum (1725)",
+            "url": "https://www.digital.wienbibliothek.at/wbrobv/content/titleinfo/4118035",
+            "pages": "56–59, 63–64"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gap_184",
+      "species": 3,
+      "voices": 4,
+      "verified": false,
+      "errors": []
+    },
+    {
+      "id": "gap_185",
+      "species": 3,
+      "voices": 4,
+      "verified": false,
+      "errors": []
+    },
+    {
+      "id": "gap_186",
+      "species": 3,
+      "voices": 4,
+      "verified": false,
+      "errors": [
+        {
+          "rule": "dissonance",
+          "message": "On the second quarter, use a passing tone by step in the same direction, a neighbour that steps away and returns, or the descending cambiata; keep the surrounding anchors consonant.",
+          "notes": [
+            "v2n0",
+            "v4n2"
+          ],
+          "severity": "error",
+          "source": "Fux (1725), pp. 56–59, 63–64.",
+          "lessonId": "passing",
+          "basis": "rule",
+          "details": "Voice 2: G♯4, bar 1, beat 1; Voice 4: D4, bar 1, beat 2",
+          "action": "Write the consonant notes first, then fill the gap by step in the same direction. A dissonance on the third quarter needs consonant second and fourth quarters around it.",
+          "reference": {
+            "title": "Gradus ad Parnassum (1725)",
+            "url": "https://www.digital.wienbibliothek.at/wbrobv/content/titleinfo/4118035",
+            "pages": "56–59, 63–64"
+          }
+        },
+        {
+          "rule": "dissonance",
+          "message": "On the third quarter, a dissonance must pass by step in the same direction between consonant second and fourth quarters. A neighbour that turns back is not allowed here.",
+          "notes": [
+            "v2n0",
+            "v4n4"
+          ],
+          "severity": "error",
+          "source": "Fux (1725), pp. 56–59, 63–64.",
+          "lessonId": "passing",
+          "basis": "rule",
+          "details": "Voice 2: G♯4, bar 1, beat 1; Voice 4: C4, bar 1, beat 3",
+          "action": "Write the consonant notes first, then fill the gap by step in the same direction. A dissonance on the third quarter needs consonant second and fourth quarters around it.",
+          "reference": {
+            "title": "Gradus ad Parnassum (1725)",
+            "url": "https://www.digital.wienbibliothek.at/wbrobv/content/titleinfo/4118035",
+            "pages": "56–59, 63–64"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gap_193",
+      "species": 4,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_195",
+      "species": 4,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_196",
+      "species": 4,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_197",
+      "species": 4,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_200",
+      "species": 5,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_201",
+      "species": 5,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_202",
+      "species": 5,
+      "voices": 4,
+      "verified": true,
+      "errors": []
+    },
+    {
+      "id": "gap_203",
+      "species": 5,
+      "voices": 4,
+      "verified": false,
+      "errors": [
+        {
+          "rule": "dissonance",
+          "message": "Use a supported passing, neighbour or cambiata figure, or a prepared suspension; check its beat, note value and consonant anchors.",
+          "notes": [
+            "v1n32",
+            "v4n34"
+          ],
+          "severity": "error",
+          "source": "Fux (1725), pp. 69–75, 104–110.",
+          "lessonId": "suspensions",
+          "basis": "rule",
+          "details": "Voice 1: B4, bar 5, beat 1; Voice 4: F3, bar 5, beat 2",
+          "action": "Check the preparation against the harmony at its own time, keep the same pitch through the tie, and write the resolution. A chain made entirely of untied half notes is second species.",
+          "reference": {
+            "title": "Gradus ad Parnassum (1725)",
+            "url": "https://www.digital.wienbibliothek.at/wbrobv/content/titleinfo/4118035",
+            "pages": "69–75, 104–110"
+          }
+        },
+        {
+          "rule": "dissonance",
+          "message": "This downbeat dissonance needs a prepared suspension resolving down by step.",
+          "notes": [
+            "v2n64",
+            "v3n64"
+          ],
+          "severity": "error",
+          "source": "Fux (1725), pp. 56–59, 63–64.",
+          "lessonId": "passing",
+          "basis": "rule",
+          "details": "Voice 2: F4, bar 9, beat 1; Voice 3: C♯4, bar 9, beat 1",
+          "action": "Write the consonant notes first, then fill the gap by step in the same direction. A dissonance on the third quarter needs consonant second and fourth quarters around it.",
+          "reference": {
+            "title": "Gradus ad Parnassum (1725)",
+            "url": "https://www.digital.wienbibliothek.at/wbrobv/content/titleinfo/4118035",
+            "pages": "56–59, 63–64"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gap_204",
+      "species": 4,
+      "voices": 4,
+      "verified": false,
+      "errors": [
+        {
+          "rule": "dissonance",
+          "message": "Use a supported passing, neighbour or cambiata figure, or a prepared suspension; check its beat, note value and consonant anchors.",
+          "notes": [
+            "v2n10",
+            "v3n8"
+          ],
+          "severity": "error",
+          "source": "Fux (1725), pp. 69–75, 104–110.",
+          "lessonId": "suspensions",
+          "basis": "rule",
+          "details": "Voice 2: G4, bar 2, beat 2; Voice 3: A3, bar 2, beat 1",
+          "action": "Check the preparation against the harmony at its own time, keep the same pitch through the tie, and write the resolution. A chain made entirely of untied half notes is second species.",
+          "reference": {
+            "title": "Gradus ad Parnassum (1725)",
+            "url": "https://www.digital.wienbibliothek.at/wbrobv/content/titleinfo/4118035",
+            "pages": "69–75, 104–110"
+          }
+        },
+        {
+          "rule": "dissonance",
+          "message": "Use a supported passing, neighbour or cambiata figure, or a prepared suspension; check its beat, note value and consonant anchors.",
+          "notes": [
+            "v2n34",
+            "v3n32"
+          ],
+          "severity": "error",
+          "source": "Fux (1725), pp. 69–75, 104–110.",
+          "lessonId": "suspensions",
+          "basis": "rule",
+          "details": "Voice 2: C4, bar 5, beat 2; Voice 3: B♭3, bar 5, beat 1",
+          "action": "Check the preparation against the harmony at its own time, keep the same pitch through the tie, and write the resolution. A chain made entirely of untied half notes is second species.",
+          "reference": {
+            "title": "Gradus ad Parnassum (1725)",
+            "url": "https://www.digital.wienbibliothek.at/wbrobv/content/titleinfo/4118035",
+            "pages": "69–75, 104–110"
+          }
+        },
+        {
+          "rule": "dissonance",
+          "message": "Use a supported passing, neighbour or cambiata figure, or a prepared suspension; check its beat, note value and consonant anchors.",
+          "notes": [
+            "v2n50",
+            "v3n48"
+          ],
+          "severity": "error",
+          "source": "Fux (1725), pp. 69–75, 104–110.",
+          "lessonId": "suspensions",
+          "basis": "rule",
+          "details": "Voice 2: D4, bar 7, beat 2; Voice 3: C4, bar 7, beat 1",
+          "action": "Check the preparation against the harmony at its own time, keep the same pitch through the tie, and write the resolution. A chain made entirely of untied half notes is second species.",
+          "reference": {
+            "title": "Gradus ad Parnassum (1725)",
+            "url": "https://www.digital.wienbibliothek.at/wbrobv/content/titleinfo/4118035",
+            "pages": "69–75, 104–110"
+          }
+        },
+        {
+          "rule": "dissonance",
+          "message": "This downbeat dissonance needs a prepared suspension resolving down by step.",
+          "notes": [
+            "v2n72",
+            "v3n72"
+          ],
+          "severity": "error",
+          "source": "Fux (1725), pp. 69–75, 104–110.",
+          "lessonId": "suspensions",
+          "basis": "rule",
+          "details": "Voice 2: E4, bar 10, beat 1; Voice 3: D4, bar 10, beat 1",
+          "action": "Check the preparation against the harmony at its own time, keep the same pitch through the tie, and write the resolution. A chain made entirely of untied half notes is second species.",
+          "reference": {
+            "title": "Gradus ad Parnassum (1725)",
+            "url": "https://www.digital.wienbibliothek.at/wbrobv/content/titleinfo/4118035",
+            "pages": "69–75, 104–110"
+          }
+        },
+        {
+          "rule": "dissonance",
+          "message": "Use a supported passing, neighbour or cambiata figure, or a prepared suspension; check its beat, note value and consonant anchors.",
+          "notes": [
+            "v2n74",
+            "v3n72"
+          ],
+          "severity": "error",
+          "source": "Fux (1725), pp. 69–75, 104–110.",
+          "lessonId": "suspensions",
+          "basis": "rule",
+          "details": "Voice 2: E3, bar 10, beat 2; Voice 3: D4, bar 10, beat 1",
+          "action": "Check the preparation against the harmony at its own time, keep the same pitch through the tie, and write the resolution. A chain made entirely of untied half notes is second species.",
+          "reference": {
+            "title": "Gradus ad Parnassum (1725)",
+            "url": "https://www.digital.wienbibliothek.at/wbrobv/content/titleinfo/4118035",
+            "pages": "69–75, 104–110"
+          }
+        },
+        {
+          "rule": "dissonance",
+          "message": "On the third quarter, a dissonance must pass by step in the same direction between consonant second and fourth quarters. A neighbour that turns back is not allowed here.",
+          "notes": [
+            "v2n76",
+            "v3n76"
+          ],
+          "severity": "error",
+          "source": "Fux (1725), pp. 56–59, 63–64.",
+          "lessonId": "passing",
+          "basis": "rule",
+          "details": "Voice 2: F3, bar 10, beat 3; Voice 3: C♯4, bar 10, beat 3",
+          "action": "Write the consonant notes first, then fill the gap by step in the same direction. A dissonance on the third quarter needs consonant second and fourth quarters around it.",
+          "reference": {
+            "title": "Gradus ad Parnassum (1725)",
+            "url": "https://www.digital.wienbibliothek.at/wbrobv/content/titleinfo/4118035",
+            "pages": "56–59, 63–64"
+          }
+        }
+      ]
+    }
+  ]
+}
