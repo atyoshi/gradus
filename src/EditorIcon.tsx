@@ -1,5 +1,30 @@
 import { useLayoutEffect, useRef } from "react";
 
+export function RhythmIcon({ glyph }: { glyph: string }) {
+  const svg = useRef<SVGSVGElement>(null);
+  useLayoutEffect(() => {
+    let active = true;
+    const center = () => {
+      const text = svg.current?.querySelector("text");
+      const ctx = document.createElement("canvas").getContext("2d");
+      if (!active || !text || !ctx || !svg.current) return;
+      ctx.font = "32px Bravura";
+      const ink = ctx.measureText(glyph);
+      const x = (ink.actualBoundingBoxRight - ink.actualBoundingBoxLeft) / 2;
+      const y = (ink.actualBoundingBoxDescent - ink.actualBoundingBoxAscent) / 2;
+      svg.current.setAttribute("viewBox", `${x - 18} ${y - 22} 36 44`);
+    };
+    center();
+    document.fonts.ready.then(center);
+    return () => { active = false; };
+  }, [glyph]);
+  return (
+    <svg className="duration-glyph" ref={svg} viewBox="-18 -22 36 44" aria-hidden="true">
+      <text fontFamily="Bravura" fontSize="32" fill="currentColor">{glyph}</text>
+    </svg>
+  );
+}
+
 function AccidentalIcon({ name }: { name: "flat" | "natural" | "sharp" }) {
   const svg = useRef<SVGSVGElement>(null);
   useLayoutEffect(() => {

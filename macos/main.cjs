@@ -30,6 +30,7 @@ async function createWindow() {
   await window.loadURL(origin);
 }
 if (locked) app.whenReady().then(async () => {
+  if (process.platform === 'darwin') app.dock.setIcon(path.join(__dirname, '..', 'dist', 'gradus-icon.png'));
   const userData = app.getPath('userData');
   fs.mkdirSync(userData, { recursive: true });
   process.env.GRADUS_DB = path.join(userData, 'gradus.sqlite');

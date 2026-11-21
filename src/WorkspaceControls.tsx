@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
+import { Button } from "@astryxdesign/core/Button";
 import type { Score } from "./model";
 export function PlaybackSettings({
   score,
@@ -167,6 +168,7 @@ export function StudyHelp({
   busy,
   model,
   hint,
+  cantusOnly,
   onGuidance,
   onSample,
   onLesson,
@@ -174,6 +176,7 @@ export function StudyHelp({
   busy: boolean;
   model: boolean;
   hint: string;
+  cantusOnly: boolean;
   onGuidance: () => void;
   onSample: () => void;
   onLesson: () => void;
@@ -181,13 +184,9 @@ export function StudyHelp({
   return (
     <section className="score-secondary" aria-label="Study help">
       <div className="help">
-        <button onClick={onLesson}>Lesson</button>
-        <button disabled={busy} onClick={onGuidance}>
-          Get guidance
-        </button>
-        <button disabled={busy} onClick={onSample}>
-          {model ? "Return to my work" : "Sample answer"}
-        </button>
+        <Button label="Lesson" variant="secondary" onClick={onLesson} />
+        <Button label="Get guidance" variant="secondary" isDisabled={busy} onClick={onGuidance} />
+        {!cantusOnly && <Button label={model ? "Return to my work" : "Sample answer"} variant="secondary" isDisabled={busy} onClick={onSample} />}
       </div>
       {hint && (
         <p className="hint" role="status">

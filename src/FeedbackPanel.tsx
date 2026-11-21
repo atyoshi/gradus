@@ -139,6 +139,7 @@ function Findings({
                                   : "Rule"}
                           </p>
                           <p className="finding-source">{f.source}</p>
+                          <div className="finding-actions">
                           {f.reference && (
                             <a
                               href={f.reference.url}
@@ -156,6 +157,7 @@ function Findings({
                               Read the rule and hear an example →
                             </button>
                           )}
+                          </div>
                         </details>
                       </div>
                     </article>

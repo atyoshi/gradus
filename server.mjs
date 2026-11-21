@@ -81,9 +81,9 @@ const server = http.createServer(async (req, res) => {
       if (req.method === "GET" && req.url === "/api/library") {
         send(
           db
-            .prepare("SELECT body FROM library ORDER BY updated DESC")
+            .prepare("SELECT body, updated FROM library ORDER BY updated DESC")
             .all()
-            .map((r) => JSON.parse(r.body)),
+            .map((r) => ({ ...JSON.parse(r.body), libraryUpdatedAt: r.updated })),
         );
         return;
       }
@@ -119,12 +119,13 @@ const server = http.createServer(async (req, res) => {
         const value = JSON.parse(body);
         if (req.url === "/api/library") {
           if (!validScore(value)) throw Error("Invalid score.");
+          const updated = new Date().toISOString();
           db.prepare("INSERT OR REPLACE INTO library VALUES (?,?,?)").run(
             value.id,
             JSON.stringify(value),
-            new Date().toISOString(),
+            updated,
           );
-          send({ ok: true });
+          send({ ok: true, updated });
           return;
         }
         if (req.url === "/api/settings") {

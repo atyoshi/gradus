@@ -3,6 +3,10 @@ import {
   ExerciseActions,
   StudyHelp,
 } from "./WorkspaceControls";
+import { Theme } from "@astryxdesign/core/theme";
+import { Button } from "@astryxdesign/core/Button";
+
+import { studioTheme } from "./studio-theme";
 import React, {
   useState,
   useEffect,
@@ -44,13 +48,12 @@ import {
   tieAvailability,
   entryDuration,
   prepareEntry,
-  resizeMeasure,
   restoreSelection,
 } from "./entry";
 import { cantus, fromCantus, cantusKey } from "./exercises";
 import { exportXML, importXML } from "./musicxml";
-import { play, stop } from "./audio";
-import { EditorIcon } from "./EditorIcon";
+import { play, previewPitch, stop } from "./audio";
+import { EditorIcon, RhythmIcon } from "./EditorIcon";
 import {
   nextWritingPosition,
   resetLinePattern,
@@ -122,6 +125,7 @@ function App() {
   }, [theme]);
   const [catalog, setCatalog] = useState<Score[]>([]),
     [library, setLibrary] = useState<Score[]>([]),
+    [notebookGroup, setNotebookGroup] = useState("date"),
     [score, setScore] = useState<Score | null>(null),
     [selected, setSelected] = useState(""),
     [inputDuration, setInputDuration] = useState<number | null>(null),
@@ -140,6 +144,12 @@ function App() {
     [mode, setMode] = useState("Dorian"),
     [pathMode, setPathMode] = useState("Any"),
     [cfPosition, setCFPosition] = useState(-1),
+    [scratchClef, setScratchClef] = useState("treble"),
+    [scratchMode, setScratchMode] = useState("Dorian"),
+    [scratchBars, setScratchBars] = useState(8),
+    [cantusSpecies, setCantusSpecies] = useState(1),
+    [cantusVoices, setCantusVoices] = useState(2),
+    [cantusPosition, setCantusPosition] = useState(1),
     [tempo, setTempo] = useState(88),
     [tempoDraft, setTempoDraft] = useState("88"),
     [instrument, setInstrument] = useState("piano"),
@@ -193,6 +203,7 @@ function App() {
   );
   const [displaySettings, setDisplaySettings] = useState(false);
   const displayOpener = useRef<HTMLButtonElement>(null);
+  const exerciseSetup = useRef<HTMLDetailsElement>(null);
   const file = useRef<HTMLInputElement>(null);
   const restore = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -273,9 +284,9 @@ function App() {
       saveQueue.current = saveQueue.current
         .catch(() => {})
         .then(async () => {
-          await api("library", snapshot);
+          const result = await api("library", snapshot);
           setLibrary((xs) => [
-            snapshot,
+            { ...snapshot, libraryUpdatedAt: result.updated },
             ...xs.filter((x) => x.id !== snapshot.id),
           ]);
           if (current.current?.id === snapshot.id)
@@ -346,7 +357,13 @@ function App() {
     setNotice("Line cleared. Undo restores your work.", "status");
   }
   const setPitch = useCallback(
-    (id: string, p: Pitch, advance: boolean | "unwritten" = false) =>
+    (id: string, p: Pitch, advance: boolean | "unwritten" = false) => {
+      if (
+        !current.current?.voices.some(
+          (v) => !v.locked && v.notes.some((n) => n.id === id),
+        )
+      )
+        return;
       edit((s) => {
         const n = enterPitch(s, id, p, inputDuration);
         if (!n) return;
@@ -358,8 +375,10 @@ function App() {
               : notes[notes.findIndex((n) => n.id === id) + 1]?.id || id,
           );
         }
-      }),
-    [edit, inputDuration],
+      });
+      previewPitch(p, instrument).catch((e) => setNotice(e.message));
+    },
+    [edit, inputDuration, instrument],
   );
   const enterCandidate = useCallback(
     (id: string, p: Pitch) => setPitch(id, p, "unwritten"),
@@ -542,7 +561,7 @@ function App() {
       if (
         view !== "practice" ||
         e.repeat ||
-        /INPUT|SELECT|TEXTAREA|BUTTON/.test(
+        /^(INPUT|SELECT|TEXTAREA|BUTTON|SUMMARY|A)$/.test(
           (e.target as HTMLElement).tagName,
         ) ||
         (e.metaKey && !["z", "ArrowUp", "ArrowDown"].includes(e.key))
@@ -556,6 +575,12 @@ function App() {
       if (e.key === "z" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         e.shiftKey ? redo() : undo();
+        return;
+      }
+      const durationKey: Record<string, number> = { "4": 1, "5": 2, "6": 4, "7": 8 };
+      if (!e.metaKey && !e.ctrlKey && !e.altKey && durationKey[e.key]) {
+        e.preventDefault();
+        rhythm(durationKey[e.key]);
         return;
       }
       if (e.key === "ArrowUp" || e.key === "ArrowDown") {
@@ -585,7 +610,10 @@ function App() {
           )
           .reverse()
           .find((n) => n.pitch);
-        const d = degree(note.pitch || previous?.pitch || pitch(28));
+        const voiceIndex = score?.voices.findIndex((v) => v.notes.some((n) => n.id === selected)) ?? -1;
+        const clef = score?.clefs?.[voiceIndex];
+        const startDegree = clef === "bass" ? 21 : clef === "tenor" ? 23 : clef === "alto" ? 25 : 28;
+        const d = degree(note.pitch || previous?.pitch || pitch(startDegree));
         const target = steps.indexOf(e.key.toUpperCase());
         let nd = Math.floor(d / 7) * 7 + target;
         if (nd - d > 3) nd -= 7;
@@ -621,6 +649,7 @@ function App() {
     open(pathStudy(seed, library, score));
   }
   function open(s: Score, saveCurrent = true) {
+    if (exerciseSetup.current) exerciseSetup.current.open = false;
     s = upgradeScore(s, catalog);
     setInputDuration(null);
     setSpecies(s.species);
@@ -648,6 +677,12 @@ function App() {
       (mode === "Any" || s.mode === mode) &&
       (cfPosition === -1 || s.voices[cfPosition]?.locked),
   );
+  const incompleteCantus = score?.cantusOnly
+    ? Array.from({ length: score.bars }, (_, i) => {
+        const notes = score.voices[0].notes.filter((n) => n.time >= i * 8 && n.time < (i + 1) * 8);
+        return notes.length === 1 && notes[0].time === i * 8 && notes[0].duration === 8 && notes[0].pitch && !notes[0].rest ? null : { bar: i + 1, note: notes[0] };
+      }).filter((item) => item !== null)
+    : [];
   async function newExercise(generated = false) {
     const valid = pool.filter((s) => s.verified);
     const distinct = pool.filter(
@@ -692,6 +727,8 @@ function App() {
         setSelected(
           f.notes.find((id) => editable.some((n) => n.id === id)) || selected,
         );
+      } else if (score.cantusOnly) {
+        setHint("Shape a singable melody with mostly stepwise motion, a clear high point, and a step into the final. Listen to the whole line as you revise it.");
       } else if (hintLevel === 0) {
         setHint(
           "Plan the ending first. Seek contrary motion and consonant downbeats; use steps to connect the stronger notes.",
@@ -723,7 +760,7 @@ function App() {
     }
   }
   async function showModel() {
-    if (!score) return;
+    if (!score || score.cantusOnly) return;
     if (model) {
       setModel(false);
       return;
@@ -778,10 +815,6 @@ function App() {
     }
     if (!note || locked || !score) return;
     setInputDuration(duration);
-    edit((s) => {
-      const v = s.voices.find((v) => v.notes.some((n) => n.id === selected))!;
-      resizeMeasure(v, note, duration);
-    });
   }
   const shownFindings = model ? sampleFindings : findings;
   const analysis =
@@ -850,6 +883,7 @@ function App() {
   );
   const written = editable.filter((n) => n.pitch || n.rest).length;
   return (
+    <Theme theme={studioTheme} mode={theme === "dark" || theme === "light" ? theme : "system"}>
     <div className="app">
       <aside className="sidebar">
         <a
@@ -877,9 +911,15 @@ function App() {
             <button
               key={key}
               className={"nav " + (view === key ? "active" : "")}
+              aria-current={view === key ? "page" : undefined}
               onClick={() => setView(key)}
             >
-              <span>{icon}</span>
+              <span aria-hidden="true">{key === "library" ? (
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="5" y="3" width="15" height="18" rx="2" />
+                  <path d="M9 3v18M3 7h4M3 12h4M3 17h4M12 8h5M12 12h5" />
+                </svg>
+              ) : icon}</span>
               {text}
               {key === "library" && <small>{library.length}</small>}
             </button>
@@ -949,19 +989,36 @@ function App() {
                   )
                 }
               />
-              <details className="exercise-setup">
+              <details ref={exerciseSetup} className="exercise-setup" onKeyDown={(event) => {
+                if (event.key === "Escape") {
+                  event.preventDefault();
+                  event.currentTarget.open = false;
+                  event.currentTarget.querySelector<HTMLElement>("summary")?.focus();
+                }
+              }}>
                 <summary>New exercise</summary>
                 <div className="cantus-action">
-                  <button
-                    className="text-button"
-                    onClick={() =>
-                      open(cantus(mode === "Any" ? "Dorian" : mode))
-                    }
-                  >
-                    Write a cantus
-                  </button>
+                  <h2>Start from scratch</h2>
+                  <p>Write your own cantus, then use it as the given voice for a counterpoint exercise.</p>
+                  <label>Mode <select aria-label="Starting cantus mode" value={scratchMode} onChange={(e) => setScratchMode(e.target.value)}>{modes.map((m) => <option key={m} value={m}>{m}</option>)}</select></label>{" "}
+                  <label>Clef <select aria-label="Cantus clef" value={scratchClef} onChange={(e) => setScratchClef(e.target.value)}><option value="treble">Treble</option><option value="bass">Bass</option><option value="alto">Alto</option><option value="tenor">Tenor</option></select></label>{" "}
+                  <label>Measures <select aria-label="Cantus measures" value={scratchBars} onChange={(e) => setScratchBars(+e.target.value)}>{Array.from({ length: 13 }, (_, i) => i + 4).map((n) => <option key={n} value={n}>{n}</option>)}</select></label>{" "}
+                  <button className="button primary" onClick={(event) => {
+                    const draft = cantus(scratchMode);
+                    draft.bars = scratchBars;
+                    draft.clefs = [scratchClef];
+                    draft.voices[0].notes = Array.from({ length: scratchBars }, (_, i) => ({ id: `v1n${i * 8}`, time: i * 8, duration: 8, pitch: null }));
+                    const setup = event.currentTarget.closest("details");
+                    if (setup) setup.open = false;
+                    open(draft);
+                    requestAnimationFrame(() => document.querySelector<HTMLElement>('[aria-label="Score editor"]')?.focus());
+                  }}>Start from scratch</button>{" "}
                 </div>{" "}
                 <section className="setup">
+                  <div className="setup-intro">
+                    <h2>Practice with a given cantus</h2>
+                    <p>Choose the exercise settings, then select a source below or generate a variation.</p>
+                  </div>
                   <label>
                     SPECIES
                     <select
@@ -1036,6 +1093,11 @@ function App() {
                   >
                     Generate new cantus +
                   </button>
+                  {!pool.some((s) => s.verified) && (
+                    <p className="generation-explanation" role="status">
+                      No verified source matches these settings. Generation needs a verified source exercise as a starting point; try another species, voice count, mode, or given-voice position. You can still write your own cantus above.
+                    </p>
+                  )}
                 </section>
                 <section className="source-picker">
                   <h2>Practice from a specific example.</h2>
@@ -1075,6 +1137,32 @@ function App() {
             </div>
             {score && (
               <>
+                {score.cantusOnly && (
+                  <section className="cantus-convert" aria-label="Use your cantus">
+                    {!score.path && <div className="cantus-measures"><span>{score.bars} measures</span>{" "}<button onClick={() => edit((s) => {
+                      const time = s.bars * 8;
+                      s.voices[0].notes.push({ id: `v1n${time}`, time, duration: 8, pitch: null });
+                      s.bars++;
+                    })}>Add measure</button></div>}
+                    <details className="cantus-settings">
+                    <summary>Cantus settings &amp; counterpoint</summary>
+                    <h2>Write counterpoint on this cantus</h2>
+                    <p>Enter one whole note in every measure. You can use your melody even if the feedback suggests revisions; your cantus draft stays saved.</p>
+                    <div className="cantus-fields">
+                    {!score.path && <label>Mode <select aria-label="Cantus mode" value={score.mode} onChange={(e) => { const nextMode = e.target.value; edit((s) => { s.mode = nextMode; }); setMode(nextMode); }}>{modes.map((m) => <option key={m} value={m}>{m}</option>)}</select></label>}{" "}
+                    <label>Editing clef <select aria-label="Edit cantus clef" value={score.clefs?.[0] || ""} onChange={(e) => { const clef = e.target.value; edit((s) => { s.clefs = clef ? [clef] : undefined; }); }}><option value="">Automatic</option><option value="treble">Treble</option><option value="bass">Bass</option><option value="alto">Alto</option><option value="tenor">Tenor</option></select></label>
+                    <label>Species <select aria-label="Counterpoint species" value={cantusSpecies} onChange={(e) => setCantusSpecies(+e.target.value)}>{[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n} · {speciesNames[n]}</option>)}</select></label>{" "}
+                    <label>Voices <select aria-label="Counterpoint voices" value={cantusVoices} onChange={(e) => { const n = +e.target.value; setCantusVoices(n); setCantusPosition(n - 1); }}>{[2, 3, 4].map((n) => <option key={n} value={n}>{n}</option>)}</select></label>{" "}
+                    <label>Cantus placement <select aria-label="Cantus placement" value={cantusPosition} onChange={(e) => setCantusPosition(+e.target.value)}>{Array.from({ length: cantusVoices }, (_, i) => <option key={i} value={i}>{i === 0 ? "Top · write below" : i === cantusVoices - 1 ? "Bottom · write above" : `Middle ${i}`}</option>)}</select></label>{" "}
+                    </div>
+                    <button className="button primary" disabled={incompleteCantus.length > 0} onClick={() => { try { open(fromCantus(score, cantusSpecies, cantusVoices, cantusPosition)); } catch (e) { setNotice(String(e)); } }}>Write counterpoint</button>
+                    {incompleteCantus.length > 0 && <div className="cantus-incomplete" role="status"><p>{incompleteCantus.length} {incompleteCantus.length === 1 ? "measure still needs" : "measures still need"} a whole note.</p>{incompleteCantus[0].note && <button onClick={() => {
+                      select(incompleteCantus[0].note!.id);
+                      document.querySelector<HTMLElement>('[aria-label="Score editor"]')?.focus();
+                    }}>Go to next incomplete measure</button>}</div>}
+                    </details>
+                  </section>
+                )}
                 <div className="workspace">
                   <div className="score-column">
                     <section className="score-card">
@@ -1219,6 +1307,7 @@ function App() {
                               ?.focus({ preventScroll: true });
                         }}
                       >
+                        <div className="editor-group" role="group" aria-label="Edit history">
                         <button
                           disabled={!history.length}
                           onClick={undo}
@@ -1233,7 +1322,11 @@ function App() {
                         >
                           <EditorIcon name="redo" />
                         </button>
-                        <span className="divider" />
+                        </div>
+                        <div className="editor-group pitch-group" role="group" aria-label="Pitch controls">
+                        <span className="selection" aria-label="Selected pitch">
+                          {note ? label(note.pitch) : "Select a note"}
+                        </span>
                         <button
                           disabled={!note || locked}
                           className="pitch-control"
@@ -1276,7 +1369,25 @@ function App() {
                             />
                           </button>
                         ))}
-                        <span className="divider" />
+                        </div>
+                        <div className="editor-group" role="group" aria-label="Rhythm controls">
+                        <div className="duration-buttons" role="group" aria-label="Next note duration">
+                          {([
+                            [8, "Whole", "7", "\uE1D2"],
+                            [4, "Half", "6", "\uE1D3"],
+                            [2, "Quarter", "5", "\uE1D5"],
+                            [1, "Eighth", "4", "\uE1D7"],
+                          ] as const).map(([duration, name, shortcut, glyph]) => (
+                            <button key={duration} type="button"
+                              aria-label={`${name} note (${shortcut})`}
+                              aria-pressed={(inputDuration ?? (note ? entryDuration(score, note.id, null) : 8)) === duration}
+                              title={`${name} note · ${shortcut}`}
+                              disabled={!note || !!locked || !!score.path}
+                              onClick={() => rhythm(duration)}>
+                              <RhythmIcon glyph={glyph} /><small aria-hidden="true">{shortcut}</small>
+                            </button>
+                          ))}
+                        </div>
                         <select
                           aria-label="Note duration"
                           title={
@@ -1286,21 +1397,9 @@ function App() {
                           }
                           disabled={!note || locked || !!score.path}
                           value={
-                            note
-                              ? entryDuration(score, note.id, inputDuration)
-                              : 8
+                            note ? entryDuration(score, note.id, inputDuration) : 8
                           }
                           onChange={(e) => {
-                            if (
-                              note &&
-                              note.time + Number(e.target.value) >
-                                (Math.floor(note.time / 8) + 1) * 8
-                            ) {
-                              setNotice(
-                                "That duration extends beyond the bar.",
-                              );
-                              return;
-                            }
                             rhythm(+e.target.value);
                           }}
                         >
@@ -1353,24 +1452,15 @@ function App() {
                         >
                           {note?.tieStart ? "Remove tie" : "Add tie"}
                         </button>
-                        <button
-                          disabled={!note || locked}
-                          aria-pressed={showCandidates}
-                          onClick={() => setShowCandidates((x) => !x)}
-                        >
-                          Pitch hints
-                        </button>
-
-                        <button
-                          disabled={!resetPattern || locked}
-                          onClick={clearLine}
-                          title="Start this voice over with the exercise’s empty rhythm. Custom lines reset to their species pattern. Undo restores your work."
-                        >
-                          Clear line
-                        </button>
-                        <span className="selection">
-                          {note ? label(note.pitch) : "Select a note"}
-                        </span>
+                        </div>
+                        <div className="editor-group" role="group" aria-label="Line tools">
+                          <Button label="Pitch hints" variant="secondary"
+                            isDisabled={!note || locked} aria-pressed={showCandidates}
+                            onClick={() => setShowCandidates((x) => !x)} />
+                          <Button label="Clear line" variant="secondary"
+                            isDisabled={!resetPattern || locked} onClick={clearLine}
+                            tooltip="Reset this voice to its empty rhythm. Undo restores your work." />
+                        </div>
                       </div>
                       <div
                         className="entry-status"
@@ -1421,6 +1511,7 @@ function App() {
                       busy={!!busy}
                       model={model}
                       hint={hint}
+                      cantusOnly={!!score.cantusOnly}
                       onGuidance={giveHint}
                       onSample={showModel}
                       onLesson={() => openLesson(studyLesson(score).id)}
@@ -1568,8 +1659,29 @@ function App() {
                 ↑ Restore a backup
               </button>
             </details>{" "}
-            <div className="exercise-grid">
-              {library.map((s) => (
+            <label className="notebook-filter">Group notebook by
+              <select aria-label="Group notebook by" value={notebookGroup} onChange={(event) => setNotebookGroup(event.target.value)}>
+                <option value="date">Last saved</option>
+                <option value="species">Species</option>
+                <option value="mode">Mode</option>
+                <option value="voices">Voice count</option>
+              </select>
+            </label>
+            {Array.from(library.reduce((groups, s) => {
+              const date = s.libraryUpdatedAt ? new Date(s.libraryUpdatedAt) : null;
+              const name = notebookGroup === "species" ? (s.cantusOnly ? "Cantus drafts" : `Species ${s.species}`)
+                : notebookGroup === "mode" ? (s.mode || "Unknown mode")
+                : notebookGroup === "voices" ? `${s.voices.length} ${s.voices.length === 1 ? "voice" : "voices"}`
+                : date && !Number.isNaN(date.getTime()) ? `Saved ${date.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}` : "Save date unavailable";
+              const entries = groups.get(name) || [];
+              entries.push(s);
+              groups.set(name, entries);
+              return groups;
+            }, new Map<string, Score[]>())).map(([name, entries]) => (
+            <section className="notebook-group" key={name}>
+              <h2>{name}</h2>
+              <div className="exercise-grid">
+              {entries.map((s) => (
                 <button key={s.id} className="exercise" onClick={() => open(s)}>
                   <small>
                     {s.mode} · {s.voices.length} voices · species {s.species}
@@ -1577,14 +1689,17 @@ function App() {
                   <h3>{s.title}</h3>
                   <span>
                     {
-                      s.voices.flatMap((v) => v.notes).filter((n) => n.pitch)
-                        .length
+                      s.voices
+                        .flatMap((v) => (v.locked ? [] : v.notes))
+                        .filter((n) => n.pitch || n.rest).length
                     }{" "}
                     notes written ↗
                   </span>
                 </button>
               ))}
-            </div>
+              </div>
+            </section>
+            ))}
           </section>
         )}
         {view === "path" && (
@@ -1597,7 +1712,7 @@ function App() {
               Expand a species to choose a study. Your work resumes when you
               return.
             </p>
-            <label>
+            <label className="path-filter">
               Mode
               <select
                 aria-label="Path mode"
@@ -2006,6 +2121,7 @@ function App() {
         }}
       />
     </div>
+    </Theme>
   );
 }
 createRoot(document.getElementById("root")!).render(<App />);

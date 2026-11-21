@@ -19,6 +19,7 @@ export type Score = {
   version: 1;
   id: string;
   title: string;
+  libraryUpdatedAt?: string;
   species: number;
   mode: string;
   bars: number;

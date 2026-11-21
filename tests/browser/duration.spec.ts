@@ -14,7 +14,6 @@ async function openStudy(page: Page) {
       has: page.getByRole("heading", { name: "Fux · Figure 5", exact: true }),
     })
     .click();
-  await page.locator(".exercise-setup > summary").click();
 }
 
 async function draft(page: Page): Promise<Score> {
@@ -175,7 +174,7 @@ test("opening another exercise resets duration memory and path rhythms stay assi
   await control.selectOption("2");
   await page.locator(".exercise-setup > summary").click();
   await page
-    .getByRole("button", { name: "Write a cantus", exact: true })
+    .getByRole("button", { name: "Start from scratch", exact: true })
     .click();
   await expect(control).toHaveValue("8");
   await selectSlot(page, "v1n8");
@@ -241,13 +240,13 @@ test("rest entry uses the chosen duration and eighth-note previews include a fla
   await selectSlot(page, "v1n0");
   await control.selectOption("1");
   await selectSlot(page, "v1n12");
-  await expect(control).toHaveValue("4");
+  await expect(control).toHaveValue("1");
   await page.keyboard.press("a");
   expect(
     (await draft(page)).voices[0].notes
       .filter((n) => n.time >= 8 && n.time < 16)
       .map((n) => n.duration),
-  ).toEqual([4, 4]);
+  ).toEqual([4, 1, 1, 1, 1]);
   expect((await draft(page)).voices[0].notes.find((n) => n.time === 8)).toEqual(
     notes[0],
   );

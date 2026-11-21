@@ -16,6 +16,8 @@ async function checkButtons(page: Page) {
         issues.push(`Outside window: ${name}`);
       for (const other of buttons.slice(i + 1)) {
         if (button.contains(other) || other.contains(button)) continue;
+        // The open exercise panel intentionally overlays the workspace.
+        if (!!button.closest(".exercise-setup[open]") !== !!other.closest(".exercise-setup[open]")) continue;
         const q = other.getBoundingClientRect();
         if (
           Math.min(r.right, q.right) - Math.max(r.left, q.left) > 1 &&

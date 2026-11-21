@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <clipPath id="icon"><rect x="48" y="48" width="928" height="928" rx="206"/></clipPath>
+  </defs>
+  <g clip-path="url(#icon)">
+    <rect x="48" y="48" width="928" height="928" fill="#101211"/>
+    <g>
+      <circle cx="28" cy="354" r="77" fill="#555957"/>
+      <circle cx="180" cy="392" r="79" fill="#a7aaa5"/>
+      <circle cx="335" cy="350" r="81" fill="#d3d4cf"/>
+      <circle cx="490" cy="312" r="82" fill="#a5a8a3"/>
+      <circle cx="643" cy="357" r="82" fill="#505552"/>
+      <circle cx="795" cy="320" r="80" fill="#686c68"/>
+      <circle cx="950" cy="365" r="82" fill="#999c97"/>
+      <circle cx="77" cy="477" r="80" fill="#c0c2bc"/>
+      <circle cx="232" cy="512" r="81" fill="#747874"/>
+      <circle cx="386" cy="468" r="80" fill="#464b48"/>
+      <circle cx="541" cy="507" r="81" fill="#b0b3ad"/>
+      <circle cx="697" cy="466" r="79" fill="#d2d3ce"/>
+      <circle cx="850" cy="509" r="80" fill="#565b57"/>
+      <circle cx="1005" cy="476" r="80" fill="#b3b5b0"/>
+      <circle cx="24" cy="608" r="80" fill="#4b504c"/>
+      <circle cx="180" cy="642" r="80" fill="#d0d1cb"/>
+      <circle cx="335" cy="599" r="80" fill="#a4a7a1"/>
+      <circle cx="490" cy="638" r="81" fill="#555a56"/>
+      <circle cx="645" cy="595" r="80" fill="#777b76"/>
+      <circle cx="800" cy="637" r="80" fill="#c7c9c3"/>
+      <circle cx="955" cy="598" r="80" fill="#6a6e6a"/>
+      <circle cx="76" cy="724" r="80" fill="#c8cac4"/>
+      <circle cx="230" cy="756" r="80" fill="#777b76"/>
+      <circle cx="385" cy="716" r="80" fill="#424744"/>
+      <circle cx="540" cy="752" r="81" fill="#a7aaa4"/>
+      <circle cx="695" cy="715" r="80" fill="#494e4a"/>
+      <circle cx="850" cy="751" r="80" fill="#bfc1bb"/>
+      <circle cx="1005" cy="716" r="80" fill="#4b504c"/>
+    </g>
+  </g>
+</svg>

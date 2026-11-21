@@ -6,12 +6,12 @@
 /* Shared scale and semantic colors. All pages use this single visual system. */
 :root {
   color-scheme: light;
-  --paper: #f6f6f5;
+  --paper: #eef1f5;
   --surface: #ffffff;
-  --raised: #eeedee;
-  --ink: #29272b;
-  --muted: #66616b;
-  --line: #d9d6db;
+  --raised: #e3e9f0;
+  --ink: #202c3c;
+  --muted: #536176;
+  --line: #bec9d7;
   --accent: #245fa8;
   --accent-hover: #1d508f;
   --on-accent: #ffffff;
@@ -30,13 +30,13 @@
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --paper: #202022;
-  --surface: #272729;
-  --raised: #313033;
-  --ink: #efedf0;
-  --muted: #b6b1ba;
-  --line: #47444a;
-  --accent: #83b9f4;
+  --paper: #111827;
+  --surface: #192334;
+  --raised: #243247;
+  --ink: #e8eef7;
+  --muted: #aab9cc;
+  --line: #3a4b63;
+  --accent: #78b2ff;
   --accent-hover: #a0cafa;
   --on-accent: #202b38;
   --error: #ff9da9;
@@ -50,13 +50,13 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --paper: #202022;
-    --surface: #272729;
-    --raised: #313033;
-    --ink: #efedf0;
-    --muted: #b6b1ba;
-    --line: #47444a;
-    --accent: #83b9f4;
+    --paper: #111827;
+    --surface: #192334;
+    --raised: #243247;
+    --ink: #e8eef7;
+    --muted: #aab9cc;
+    --line: #3a4b63;
+    --accent: #78b2ff;
     --accent-hover: #a0cafa;
     --on-accent: #202b38;
     --error: #ff9da9;
@@ -379,10 +379,52 @@ summary {
   transform: translateY(2px) rotate(225deg);
 }
 .exercise-setup[open] {
+  position: fixed;
+  z-index: 20;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  width: min(900px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
   padding: 24px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
+  box-shadow: 0 12px 40px #0004, 0 0 0 100vmax #0006;
+}
+.cantus-action, .cantus-convert {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.cantus-action { margin-top: 16px; }
+.cantus-convert { margin: 16px 0; }
+.cantus-action h2, .cantus-convert h2 { margin: 0 0 8px; }
+.cantus-action p, .cantus-convert p { margin: 0 0 12px; }
+.cantus-action label, .cantus-convert label { display: inline-flex; align-items: center; gap: 8px; margin: 4px 12px 4px 0; }
+.cantus-measures { display: inline-flex; align-items: center; gap: 12px; }
+.cantus-settings { margin: 0; padding: 0; border: 0; }
+.cantus-settings > summary { padding: 8px 0; }
+.cantus-settings[open] { margin-top: 8px; }
+.cantus-settings[open] > summary { margin-bottom: 16px; }
+.cantus-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 720px;
+  margin: 16px 0;
+}
+.cantus-convert .cantus-fields label {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+}
+.cantus-fields select { width: 100%; }
+.cantus-incomplete { margin-top: 16px; }
+@media (max-width: 600px) {
+  .cantus-fields { grid-template-columns: minmax(0, 1fr); }
 }
 .setup {
   display: flex;
@@ -391,6 +433,17 @@ summary {
   gap: 16px;
   padding: 24px 0;
   border-bottom: 1px solid var(--line);
+  margin-top: 20px;
+}
+.setup-intro, .generation-explanation { flex: 0 0 100%; }
+.setup-intro h2 { margin: 0 0 8px; }
+.setup-intro p { margin: 0; color: var(--muted); }
+.generation-explanation {
+  margin: 0;
+  padding: 12px 16px;
+  border-left: 3px solid var(--line);
+  color: var(--muted);
+  line-height: 1.5;
 }
 .setup label {
   display: grid;
@@ -425,8 +478,8 @@ summary {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 16px;
-  padding-top: 12px;
+  gap: 20px;
+  padding: 16px 0 12px;
 }
 .practice-heading h1 {
   margin: 0 0 4px;
@@ -437,10 +490,11 @@ summary {
   font-size: var(--secondary);
 }
 .practice-heading:has(.exercise-setup[open]) {
-  display: block;
+  display: flex;
 }
 .practice-heading .exercise-setup[open] {
-  margin-top: 16px;
+  flex: 0 0 100%;
+  margin-top: 0;
 }
 @media (min-width: 1180px) {
   .workspace {
@@ -586,9 +640,9 @@ button:has(> .editor-icon) {
 .note-toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
+  align-items: flex-start;
+  gap: 16px 24px;
+  padding: 16px;
   border-block: 1px solid var(--line);
   background: var(--paper);
 }
@@ -612,11 +666,47 @@ button:has(> .editor-icon) {
   margin-inline: 2px;
 }
 .selection {
-  margin-left: auto;
+  margin-left: 0;
+  min-width: 44px;
+  text-align: center;
+  white-space: nowrap;
   color: var(--accent);
   font-weight: 600;
   font-size: 16px;
 }
+.editor-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 100%;
+}
+.editor-group::before {
+  content: attr(aria-label);
+  flex: 0 0 100%;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.note-toolbar .editor-group button:not(:has(.editor-icon)) { padding-inline: 12px; }
+.duration-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.note-toolbar .duration-buttons button { display: inline-flex; align-items: center; gap: 6px; font-size: 22px; line-height: 1; }
+.duration-glyph { width: 27px; height: 33px; flex: none; }
+.duration-buttons small { font-size: 11px; color: var(--muted); }
+.note-toolbar select { width: 150px; padding-left: 12px; }
+.note-toolbar .astryx-button { padding-inline: 12px; }
+.path-filter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-block: 20px 16px;
+  width: fit-content;
+}
+.path-filter select { min-width: 140px; }
+.notebook-filter { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+.notebook-group { margin-block: 24px; }
+.notebook-group h2 { margin: 0 0 12px; font-size: 18px; }
 .zoom-control {
   display: flex;
   align-items: center;
@@ -823,6 +913,12 @@ button:has(> .editor-icon) {
 }
 .finding-basis {
   color: var(--muted);
+}
+.finding-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 12px;
 }
 .finding-lesson {
   padding-left: 0;
@@ -1338,6 +1434,9 @@ button:has(> .editor-icon) {
   display: inline-flex;
   margin: 0;
 }
+.score-secondary > .hint {
+  margin: 12px 0 0;
+}
 .status h3:empty {
   display: none;
 }
@@ -1382,4 +1481,89 @@ button:has(> .editor-icon) {
 }
 .historical-notes p {
   line-height: 1.6;
+}
+
+
+/* Studio chrome: a quiet Astryx-neutral frame around the score. */
+.sidebar {
+  gap: 12px;
+  background: var(--surface);
+}
+.brand {
+  font-family: Georgia, serif;
+  font-size: 25px;
+  letter-spacing: -0.045em;
+}
+.brand small {
+  display: block;
+  margin-top: 3px;
+  font: 600 9px/1.2 -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: .16em;
+}
+.nav {
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 550;
+  text-align: left;
+}
+.nav.active {
+  border-color: transparent;
+  background: var(--selection);
+}
+.nav > span {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  font-size: 17px;
+  opacity: .8;
+}
+.nav small { margin-left: auto; color: var(--muted); }
+.topbar select { font-size: 13px; }
+.score-secondary .astryx-button { border-radius: 8px; }
+@media (min-width: 1180px) {
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 5;
+    width: 220px;
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    gap: 0;
+    padding: 28px 16px 20px;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+    overflow-y: auto;
+  }
+  .brand { margin: 0 8px 42px; }
+  .side-label {
+    display: block;
+    margin: 0 12px 10px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+  }
+  .studio-nav { display: grid; gap: 4px; }
+  .nav { width: 100%; padding-inline: 12px; }
+  .topbar {
+    margin: auto 0 0;
+    padding: 20px 8px 0;
+    border-top: 1px solid var(--line);
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .topbar select { width: 100%; margin: 0; }
+  .save-status { font-size: 12px; }
+  main { margin-left: 220px; padding-inline: 32px; }
+}
+@media (max-width: 750px) {
+  .sidebar { gap: 6px; }
+  .brand { font-size: 23px; }
+  .studio-nav { gap: 2px; }
+  .nav { padding-inline: 8px; }
+  .nav > span { display: none; }
 }

@@ -54,6 +54,8 @@ test("all species render and every source is editable without exceptions", async
   await page.locator(".exercise-setup > summary").click();
   for (const v of [2, 3, 4])
     for (const s of [1, 2, 3, 4, 5]) {
+      if (!(await page.locator(".exercise-setup").evaluate((node: HTMLDetailsElement) => node.open)))
+        await page.locator(".exercise-setup > summary").click();
       await page.getByLabel("Voices", { exact: true }).selectOption(String(v));
       await page.getByLabel("Species", { exact: true }).selectOption(String(s));
       await page.getByLabel("Mode", { exact: true }).selectOption("Dorian");
@@ -162,7 +164,6 @@ test("blank slots, transient pitch preview, one system, harmless selection and d
       has: page.getByRole("heading", { name: "Fux · Figure 5", exact: true }),
     })
     .click();
-  await page.locator(".exercise-setup > summary").click();
   const slot = page.locator('[data-note="v1n0"]');
   await expect(slot).toHaveAttribute("aria-label", /—/);
   await slot.hover();
@@ -214,8 +215,6 @@ test("wrong pitches have neutral previews, can be committed, and can be changed 
       has: page.getByRole("heading", { name: "Fux · Figure 5", exact: true }),
     })
     .click();
-  await page.locator(".exercise-setup > summary").click();
-
   const slot = page.locator('[data-note="v1n0"]');
   const box = (await slot.boundingBox())!;
   let y = 0;
@@ -280,8 +279,6 @@ test("rule violations shade affected voice measures and improvements have their 
       has: page.getByRole("heading", { name: "Fux · Figure 5", exact: true }),
     })
     .click();
-  await page.locator(".exercise-setup > summary").click();
-
   async function put(id: string, pitch: string) {
     const slot = page.locator(`[data-note="${id}"]`);
     let box: any;

@@ -120,6 +120,16 @@ test("a chosen rhythm replaces an untouched mixed tail even if its first slot al
   ).toEqual([2, 2, 2, 2]);
 });
 
+test("a new duration applies to blank slots after a written note without changing it", () => {
+  const s = study();
+  prepareEntry(s, "v0n0", 4)!.pitch = pitch(28);
+  expect(entryDuration(s, "v0n4", 2)).toBe(2);
+  prepareEntry(s, "v0n4", 2)!.pitch = pitch(29);
+  expect(s.voices[0].notes.filter((n) => n.time < 8).map((n) => [n.time, n.duration, n.pitch])).toEqual([
+    [0, 4, pitch(28)], [4, 2, pitch(29)], [6, 2, null],
+  ]);
+});
+
 test("undo selection falls back to the restored slot after inserted slots disappear", () => {
   const original = study(),
     edited = clone(original);

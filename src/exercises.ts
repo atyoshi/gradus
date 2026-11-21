@@ -196,7 +196,7 @@ export function fromCantus(
   count: number,
   position = count - 1,
 ): Score {
-  if (input.voices[0].notes.some((n) => n.duration !== 8 || n.rest || !n.pitch))
+  if (input.voices[0].notes.length !== input.bars || input.voices[0].notes.some((n, i) => n.time !== i * 8 || n.duration !== 8 || n.rest || !n.pitch))
     throw Error(
       "A cantus import needs one pitched whole note in each measure.",
     );
@@ -206,7 +206,11 @@ export function fromCantus(
   s.cantusOnly = false;
   s.species = species;
   s.id = crypto.randomUUID();
-  s.title = "Counterpoint on an imported cantus";
+  s.title = input.cantusOnly ? "Counterpoint on your cantus" : "Counterpoint on an imported cantus";
+  s.clefs = input.clefs?.[0] ? Array.from({ length: count }, (_, i) => i === position ? input.clefs![0] : "") : undefined;
+  s.path = undefined;
+  s.source = undefined;
+  s.generated = false;
   s.verified = false;
   s.solution = undefined;
   s.voices = Array.from({ length: count }, (_, vi) => {

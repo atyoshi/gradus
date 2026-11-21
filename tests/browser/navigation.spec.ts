@@ -157,12 +157,15 @@ test("expanded path and exercise controls fit a narrow screen in both themes", a
     "40px",
   );
   for (const theme of ["light", "dark"]) {
+    if (!(await page.locator(".exercise-setup").evaluate((node: HTMLDetailsElement) => node.open)))
+      await page.locator(".exercise-setup > summary").click();
     await page.getByLabel("Appearance").selectOption(theme);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBe(true);
+    await page.locator(".exercise-setup > summary").click();
     await page.getByRole("button", { name: /The path/ }).click();
     await page.locator(".path-stage > summary").first().click();
     expect(

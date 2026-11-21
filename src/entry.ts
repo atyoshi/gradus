@@ -11,7 +11,7 @@ import {
 function untouchedMeasure(voice: Voice, note: Note) {
   const start = Math.floor(note.time / 8) * 8;
   return voice.notes
-    .filter((n) => n.time >= start && n.time < start + 8)
+    .filter((n) => n.time >= note.time && n.time < start + 8)
     .every((n) => !n.pitch && !n.rest && !n.tieStart && !n.tieStop);
 }
 

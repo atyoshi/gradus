@@ -1,8 +1,29 @@
 import { Accidental, Dot, StaveNote } from "vexflow/bravura";
-import type { Pitch } from "./model";
+import type { Note, Pitch } from "./model";
 
 export const notationDuration = (value: number) =>
   value === 8 ? "w" : value >= 4 ? "h" : value >= 2 ? "q" : "8";
+
+/** Group consecutive written eighths within each quarter-note beat. */
+export function eighthBeamGroups(notes: Note[]): number[][] {
+  const groups: number[][] = [];
+  let group: number[] = [];
+  const flush = () => {
+    if (group.length > 1) groups.push(group);
+    group = [];
+  };
+  notes.forEach((note, i) => {
+    const previous = notes[group[group.length - 1]];
+    if (!note.pitch || note.rest || note.duration !== 1) {
+      flush();
+      return;
+    }
+    if (previous && (previous.time + previous.duration !== note.time || Math.floor(previous.time / 2) !== Math.floor(note.time / 2))) flush();
+    group.push(i);
+  });
+  flush();
+  return groups;
+}
 
 /** Shared engraving for committed notes and the placement preview. */
 export function engravedNote(

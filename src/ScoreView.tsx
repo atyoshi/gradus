@@ -9,6 +9,7 @@ import {
   Voice as VFVoice,
   Formatter,
   StaveTie,
+  Beam,
   Dot,
   VexFlow,
 } from "vexflow/bravura";
@@ -24,7 +25,7 @@ import {
 } from "./model";
 import { voiceMeasureFeedback } from "./feedback";
 import { entryDuration } from "./entry";
-import { engravedNote, notationDuration as duration } from "./notation";
+import { eighthBeamGroups, engravedNote, notationDuration as duration } from "./notation";
 VexFlow.setFonts("Bravura", "Academico");
 type Slot = {
   note: Note;
@@ -208,6 +209,7 @@ export function ScoreView({
         vi: number;
         notes: (StaveNote | GhostNote)[];
         ns: Note[];
+        beams: Beam[];
         bottom: number;
         clef: string;
       }[] = [];
@@ -263,17 +265,21 @@ export function ScoreView({
           rendered.set(n.id, note);
           return note;
         });
+        const beams = eighthBeamGroups(ns).map((group) =>
+          new Beam(group.map((index) => notes[index] as StaveNote), true),
+        );
         const voice = new VFVoice({ numBeats: 4, beatValue: 4 })
           .setStrict(false)
           .addTickables(notes);
         voices.push(voice);
-        layouts.push({ stave, vi, notes, ns, bottom, clef });
+        layouts.push({ stave, vi, notes, ns, beams, bottom, clef });
       });
       const formatter = new Formatter();
       voices.forEach((v) => formatter.joinVoices([v]));
       formatter.format(voices, bw - (bar === 0 ? 65 : 20));
       layouts.forEach((l, i) => {
         voices[i].draw(ctx, l.stave);
+        l.beams.forEach((beam) => beam.setContext(ctx).draw());
         l.ns.forEach((n, j) => {
           const nx = l.notes[j].getAbsoluteX();
           const next = l.notes[j + 1]?.getAbsoluteX();
