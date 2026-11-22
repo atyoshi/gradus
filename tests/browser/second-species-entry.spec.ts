@@ -4,10 +4,10 @@ import { parseKern, type Score } from "../../src/model";
 import { pathStudy } from "../../src/path";
 
 const rows = JSON.parse(fs.readFileSync("public/sources/fux.json", "utf8"));
-const source = parseKern(rows.find((row: any) => row.metadata.id === "gap_121"));
 const draft = (page: Page): Promise<Score> => page.evaluate(() => JSON.parse(localStorage.getItem("gradus-recovery")!));
 
-test("Figure 121 note entry does not create a tie; an explicit tie still works", async ({ page }) => {
+for (const figure of [121, 122]) test(`Figure ${figure} note entry does not create a tie; an explicit tie still works`, async ({ page }) => {
+  const source = parseKern(rows.find((row: any) => row.metadata.id === `gap_${figure}`));
   const fixture = pathStudy(source, [], null);
   await page.addInitScript((score) => {
     if (!sessionStorage.getItem("second-species-seeded")) {

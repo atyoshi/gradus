@@ -1,12 +1,52 @@
 import { expect, test } from "vitest";
 import fs from "node:fs";
-import { blank, clone, parseKern, pitch } from "../src/model";
+import { assignedSpecies, blank, clone, parseKern, pitch, type Score } from "../src/model";
 import { enterPitch, toggleTie } from "../src/entry";
 import { resetLinePattern } from "../src/editor";
 import { pathStudy } from "../src/path";
 
 const rows = JSON.parse(fs.readFileSync("public/sources/fux.json", "utf8"));
 const source = (id: string) => parseKern(rows.find((row: any) => row.metadata.id === id));
+const historical: Score[] = rows.map(parseKern);
+const practice: Score[] = JSON.parse(fs.readFileSync("public/sources/practice.json", "utf8"));
+const exercises = [...historical, ...practice].filter((s) =>
+  s.voices.some((v) => !v.locked && assignedSpecies(s, v) === 2),
+);
+
+test("the second-species catalogue includes all exercises and mixed-species lines", () => {
+  expect(exercises.filter((s) => s.species === 2 && s.id.startsWith("gap_"))).toHaveLength(25);
+  expect(exercises.filter((s) => s.species === 2 && s.id.startsWith("practice-"))).toHaveLength(9);
+  expect(exercises.some((s) => s.id === "gap_122")).toBe(true);
+  expect(exercises.some((s) => s.species !== 2)).toBe(true);
+});
+
+test.each(exercises.map((s) => [s.id, s] as const))(
+  "%s: each second-species slot is independent in new and cleared lines",
+  (_id, seed) => {
+    const original = clone(seed);
+    const fresh = pathStudy(seed, [], null);
+    expect(fresh.solution).toEqual(seed.voices);
+    expect(seed).toEqual(original);
+    for (const voice of fresh.voices.filter((v) => !v.locked && assignedSpecies(fresh, v) === 2)) {
+      expect(voice.notes.every((n) => !n.tieStart && !n.tieStop)).toBe(true);
+      for (const slot of voice.notes.filter((n) => !n.rest)) {
+        const edited = clone(fresh);
+        const before = clone(edited);
+        enterPitch(edited, slot.id, pitch(35, -1), null);
+        const editedVoice = edited.voices.find((v) => v.id === voice.id)!;
+        const oldVoice = before.voices.find((v) => v.id === voice.id)!;
+        expect(editedVoice.notes.find((n) => n.id === slot.id)?.pitch).toEqual(pitch(35, -1));
+        expect(editedVoice.notes.filter((n) => n.id !== slot.id)).toEqual(oldVoice.notes.filter((n) => n.id !== slot.id));
+        expect(edited.voices.filter((v) => v.id !== voice.id)).toEqual(before.voices.filter((v) => v.id !== voice.id));
+      }
+      const edited = clone(fresh);
+      const first = voice.notes.find((n) => !n.rest)!;
+      enterPitch(edited, first.id, pitch(35), null);
+      const reset = resetLinePattern(edited, first.id, [seed])!;
+      expect(reset.every((n) => !n.tieStart && !n.tieStop && n.pitch === null)).toBe(true);
+    }
+  },
+);
 
 test("Figure 121 second-species draft does not inherit its source answer's tie", () => {
   const original = source("gap_121");
