@@ -5,6 +5,8 @@ test("duration shortcuts and buttons choose the next note without changing the s
   await expect(page.locator(".engraving svg")).toBeVisible();
   await page.locator(".exercise-setup > summary").click();
   await page.getByRole("button", { name: "Start from scratch" }).click();
+  await expect(page.getByLabel("Score editor")).toBeFocused();
+  await expect(page.locator('[data-note="v1n0"]')).toBeVisible();
   const draft = () => page.evaluate(() => JSON.parse(localStorage.getItem("gradus-recovery")!));
   const before = await draft();
   await page.keyboard.press("6");

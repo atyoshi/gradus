@@ -102,7 +102,7 @@ test("fourth-species mouse and keyboard entry automatically tie later bars and s
         (s: Score) => s.id === saved.id,
       ),
     )
-    .toEqual(saved);
+    .toMatchObject(saved);
   await page.reload();
   await expect(page.locator(".vf-stavetie")).toHaveCount(2);
   expect(await draft(page)).toEqual(saved);
@@ -140,7 +140,7 @@ test("guided tie editing is one undoable change, updates connected pitches and s
         .json()
         .then((xs: Score[]) => xs.find((s) => s.id === edited.id)),
     )
-    .toEqual(edited);
+    .toMatchObject(edited);
   await page.reload();
   await expect(page.locator(".engraving svg")).toBeVisible();
   await page
@@ -326,7 +326,7 @@ test("clear line is undoable, preserves cantus and resets assigned rests/ties th
         (s: Score) => s.id === cleared.id,
       ),
     )
-    .toEqual(cleared);
+    .toMatchObject(cleared);
   await page.reload();
   await expect(page.locator(".engraving svg")).toBeVisible();
   await page

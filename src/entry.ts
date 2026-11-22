@@ -52,7 +52,7 @@ export function entryDuration(
     !score.path &&
     !voice.locked &&
     untouchedMeasure(voice, note)
-    ? Math.min(preferred, start + 8 - note.time)
+    ? [8, 6, 4, 3, 2, 1].find((duration) => duration <= preferred && duration <= start + 8 - note.time) ?? note.duration
     : note.duration;
 }
 

@@ -28,6 +28,78 @@ async function selectSlot(page: Page, id: string) {
   await slot.press("Enter");
 }
 
+test("duration controls agree when a whole note cannot fit at the barline", async ({ page }) => {
+  await openStudy(page);
+  await page.getByRole("button", { name: /^Half note/ }).click();
+  await selectSlot(page, "v1n8");
+  await page.keyboard.press("a");
+  await expect(page.locator('[data-note="v1n12"]')).toHaveAttribute("fill", "var(--selection)");
+  await page.getByRole("button", { name: /^Whole note/ }).click();
+  await expect(page.getByLabel("Note duration", { exact: true })).toHaveValue("4");
+  await expect(page.getByRole("button", { name: /^Half note/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^Whole note/ })).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByRole("status").filter({ hasText: "Only half" })).toBeVisible();
+  await page.keyboard.press("b");
+  expect((await draft(page)).voices[0].notes.find((n) => n.time === 12)?.duration).toBe(4);
+  await expect(page.getByRole("button", { name: /^Whole note/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Note duration", { exact: true })).toHaveValue("8");
+});
+
+for (const [name, shortcut, duration] of [["Whole", "7", 8], ["Half", "6", 4], ["Quarter", "5", 2], ["Eighth", "4", 1]] as const) {
+  test(`${name} button and shortcut agree with preview and keyboard entry`, async ({ page }) => {
+    await openStudy(page);
+    await selectSlot(page, "v1n8");
+    const button = page.getByRole("button", { name: new RegExp(`^${name} note`) });
+    await button.click();
+    await expect(button).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByLabel("Note duration", { exact: true })).toHaveValue(String(duration));
+    await page.locator('[data-note="v1n8"]').hover();
+    await expect(page.locator(".pitch-preview")).toHaveAttribute("data-preview-duration", String(duration));
+    await page.keyboard.press("a");
+    expect((await draft(page)).voices[0].notes.find((n) => n.time === 8)?.duration).toBe(duration);
+    await selectSlot(page, "v1n16");
+    await page.keyboard.press(shortcut);
+    await expect(button).toHaveAttribute("aria-pressed", "true");
+    await page.keyboard.press("b");
+    expect((await draft(page)).voices[0].notes.find((n) => n.time === 16)?.duration).toBe(duration);
+  });
+}
+
+for (const [eighths, expected] of [[1, 6], [3, 4]] as const) {
+  test(`whole-note preference after ${eighths} eighths chooses a notatable duration`, async ({ page }) => {
+    await openStudy(page);
+    await page.getByRole("button", { name: /^Eighth note/ }).click();
+    await selectSlot(page, "v1n8");
+    for (let i = 0; i < eighths; i++) await page.keyboard.press("a");
+    const slot = page.locator(`[data-note="v1n${8 + eighths}"]`);
+    await page.getByRole("button", { name: /^Whole note/ }).click();
+    await expect(page.getByLabel("Note duration", { exact: true })).toHaveValue(String(expected));
+    await slot.hover();
+    await expect(page.locator(".pitch-preview")).toHaveAttribute("data-preview-duration", String(expected));
+    await page.keyboard.press("b");
+    const measure = (await draft(page)).voices[0].notes.filter((n) => n.time >= 8 && n.time < 16);
+    expect(measure.find((n) => n.time === 8 + eighths)?.duration).toBe(expected);
+    expect(measure.every((n) => [1, 2, 3, 4, 6, 8].includes(n.duration))).toBe(true);
+    expect(measure.reduce((sum, n) => sum + n.duration, 0)).toBe(8);
+  });
+}
+
+test("a protected written note shows the actual duration and preserves the later note", async ({ page }) => {
+  await openStudy(page);
+  await page.getByLabel("Note duration", { exact: true }).selectOption("4");
+  await selectSlot(page, "v1n8");
+  await page.keyboard.press("a");
+  await page.keyboard.press("b");
+  const before = await draft(page);
+  await selectSlot(page, "v1n8");
+  await page.getByRole("button", { name: /^Whole note/ }).click();
+  await expect(page.getByRole("button", { name: /^Half note/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("status").filter({ hasText: "protect written music" })).toBeVisible();
+  await page.keyboard.press("c");
+  const after = await draft(page);
+  expect(after.voices[0].notes.find((n) => n.time === 12)).toEqual(before.voices[0].notes.find((n) => n.time === 12));
+});
+
 for (const duration of [4, 2]) {
   test(`keyboard retains duration ${duration}, advances through new slots, and undoes one entry`, async ({
     page,
@@ -85,7 +157,10 @@ for (const duration of [4, 2]) {
         const library: Score[] = await (
           await page.request.get("/api/library")
         ).json();
-        return library.find((s) => s.id === attemptId);
+        const found = library.find((s) => s.id === attemptId);
+        if (!found) return found;
+        const { libraryUpdatedAt: _updated, ...score } = found;
+        return score;
       })
       .toEqual(saved);
     await page.reload();

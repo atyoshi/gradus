@@ -137,3 +137,33 @@ test("undo selection falls back to the restored slot after inserted slots disapp
   expect(restoreSelection(original, edited, "v0n10")).toBe("v0n8");
   expect(restoreSelection(edited, original, "v0n8")).toBe("v0n8");
 });
+
+test.each([1, 2, 3, 4, 6, 8].flatMap((duration) =>
+  Array.from({ length: 8 }, (_, offset) => [duration, offset] as const),
+))("duration %i at beat offset %i fills only the remaining bar", (duration, offset) => {
+  const s = study();
+  resizeMeasure(s.voices[0], s.voices[0].notes[1], 1);
+  const before = clone(s);
+  const id = `v0n${8 + offset}`;
+  const expected = [8, 6, 4, 3, 2, 1].find((value) => value <= duration && value <= 8 - offset)!;
+  expect(entryDuration(s, id, duration)).toBe(expected);
+  expect(s).toEqual(before);
+  const entered = prepareEntry(s, id, duration)!;
+  expect(entered.duration).toBe(expected);
+  const notes = s.voices[0].notes.filter((n) => n.time >= 8 + offset && n.time < 16);
+  expect(notes.reduce((sum, n) => sum + n.duration, 0)).toBe(8 - offset);
+  expect(notes.every((n, i) => i === 0 || notes[i - 1].time + notes[i - 1].duration === n.time)).toBe(true);
+  expect(s.voices[0].notes.filter((n) => n.time < 8 + offset)).toEqual(before.voices[0].notes.filter((n) => n.time < 8 + offset));
+  expect(s.voices[0].notes.filter((n) => n.time >= 16)).toEqual(before.voices[0].notes.filter((n) => n.time >= 16));
+  expect(s.voices[1]).toEqual(before.voices[1]);
+});
+
+test.each([1, 2, 3, 4, 6, 8])("duration %i does not overwrite a written later note", (duration) => {
+  const s = study();
+  resizeMeasure(s.voices[0], s.voices[0].notes[1], 4);
+  s.voices[0].notes.find((n) => n.time === 12)!.pitch = pitch(28);
+  const before = clone(s);
+  expect(entryDuration(s, "v0n8", duration)).toBe(4);
+  prepareEntry(s, "v0n8", duration);
+  expect(s).toEqual(before);
+});

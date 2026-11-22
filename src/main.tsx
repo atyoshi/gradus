@@ -816,6 +816,13 @@ function App() {
     if (!note || locked || !score) return;
     setInputDuration(duration);
   }
+  const effectiveDuration = score && note ? entryDuration(score, note.id, inputDuration) : 8;
+  const durationNames: Record<number, string> = { 8: "whole", 6: "dotted half", 4: "half", 3: "dotted quarter", 2: "quarter", 1: "eighth" };
+  const durationNotice = inputDuration !== null && note && effectiveDuration !== inputDuration
+    ? note.time % 8 + inputDuration > 8
+      ? `Only ${durationNames[effectiveDuration] || "the remaining"} fits here before the barline. The ${durationNames[inputDuration]} preference resumes where it fits.`
+      : `This position keeps its existing ${durationNames[effectiveDuration] || "assigned"} rhythm to protect written music. The ${durationNames[inputDuration]} preference resumes in an available slot.`
+    : "";
   const shownFindings = model ? sampleFindings : findings;
   const analysis =
     analysisResult && analysisResult.score.id === displayScore?.id
@@ -1380,7 +1387,7 @@ function App() {
                           ] as const).map(([duration, name, shortcut, glyph]) => (
                             <button key={duration} type="button"
                               aria-label={`${name} note (${shortcut})`}
-                              aria-pressed={(inputDuration ?? (note ? entryDuration(score, note.id, null) : 8)) === duration}
+                              aria-pressed={effectiveDuration === duration}
                               title={`${name} note · ${shortcut}`}
                               disabled={!note || !!locked || !!score.path}
                               onClick={() => rhythm(duration)}>
@@ -1397,7 +1404,7 @@ function App() {
                           }
                           disabled={!note || locked || !!score.path}
                           value={
-                            note ? entryDuration(score, note.id, inputDuration) : 8
+                            effectiveDuration
                           }
                           onChange={(e) => {
                             rhythm(+e.target.value);
@@ -1453,6 +1460,7 @@ function App() {
                           {note?.tieStart ? "Remove tie" : "Add tie"}
                         </button>
                         </div>
+                        {durationNotice && <div className="rhythm-notice" role="status">{durationNotice}</div>}
                         <div className="editor-group" role="group" aria-label="Line tools">
                           <Button label="Pitch hints" variant="secondary"
                             isDisabled={!note || locked} aria-pressed={showCandidates}
