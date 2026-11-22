@@ -74,7 +74,13 @@ export function resetLinePattern(
     seed?.voices.find((v) => v.id === voice.id) ||
     score.solution?.find((v) => v.id === voice.id);
   const notes = original
-    ? clone(original.notes).map((n) => ({ ...n, pitch: null }))
+    ? clone(original.notes).map((n) => ({
+        ...n,
+        pitch: null,
+        ...(assignedSpecies(score, voice) === 2
+          ? { tieStart: false, tieStop: false }
+          : {}),
+      }))
     : emptyPattern(
         voice.id,
         score.bars,

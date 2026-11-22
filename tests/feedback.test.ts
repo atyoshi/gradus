@@ -146,6 +146,11 @@ test("a single written note from a checked solution is not falsely rejected beca
         const original = full.voices[vi].notes[ni];
         if (!original.pitch || original.rest) continue;
         const draft = blank(full);
+        // Test the retained answer with its own tie markings.
+        draft.voices.forEach((v, i) => v.notes.forEach((n, j) => {
+          n.tieStart = full.voices[i].notes[j].tieStart;
+          n.tieStop = full.voices[i].notes[j].tieStop;
+        }));
         draft.voices[vi].notes[ni].pitch = clone(original.pitch);
         const errors = check(draft).filter((f) => f.severity === "error");
         if (errors.length)
@@ -164,6 +169,11 @@ test("entering checked solutions in score order does not produce false violation
   const failures: string[] = [];
   for (const full of templates) {
     const draft = blank(full);
+    // Test the retained answer with its own tie markings.
+    draft.voices.forEach((v, i) => v.notes.forEach((n, j) => {
+      n.tieStart = full.voices[i].notes[j].tieStart;
+      n.tieStop = full.voices[i].notes[j].tieStop;
+    }));
     const entries = full.voices
       .flatMap((v: any, vi: number) =>
         v.locked ? [] : v.notes.map((n: any, ni: number) => ({ n, vi, ni })),

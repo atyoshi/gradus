@@ -26,8 +26,8 @@ test("choosing a path study loads that exact species, voices, mode, cantus and a
           n.time,
           n.duration,
           !!n.rest,
-          !!n.tieStart,
-          !!n.tieStop,
+          !seed.voices[i].locked && next.voices[i].species === 2 ? false : !!n.tieStart,
+          !seed.voices[i].locked && next.voices[i].species === 2 ? false : !!n.tieStop,
         ]),
       );
       if (seed.voices[i].locked)

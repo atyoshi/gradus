@@ -162,6 +162,12 @@ export function blank(s: Score): Score {
     if (!v.locked)
       v.notes.forEach((n) => {
         if (!n.rest) n.pitch = null;
+        // Source answers may contain exceptional ties that are not part of
+        // the second-species rhythm assigned to the student's blank line.
+        if (assignedSpecies(b, v) === 2) {
+          n.tieStart = false;
+          n.tieStop = false;
+        }
       });
   });
   return b;
