@@ -7,6 +7,18 @@ test("duration shortcuts and buttons choose the next note without changing the s
   await page.getByRole("button", { name: "Start from scratch" }).click();
   await expect(page.getByLabel("Score editor")).toBeFocused();
   await expect(page.locator('[data-note="v1n0"]')).toBeVisible();
+  // Exercise flexible rhythm controls using a florid voice, not a cantus.
+  await page.evaluate(() => {
+    const s = JSON.parse(localStorage.getItem("gradus-recovery")!);
+    s.id = "free-note-input";
+    s.cantusOnly = false;
+    s.species = 5;
+    s.voices[0].species = 5;
+    localStorage.setItem("gradus-recovery", JSON.stringify(s));
+  });
+  await page.reload();
+  await expect(page.locator('[data-note="v1n0"]')).toBeVisible();
+  await page.getByLabel("Score editor").focus();
   const draft = () => page.evaluate(() => JSON.parse(localStorage.getItem("gradus-recovery")!));
   const before = await draft();
   await page.keyboard.press("6");

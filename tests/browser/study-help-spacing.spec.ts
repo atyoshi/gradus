@@ -1,6 +1,11 @@
 import { test, expect } from "@playwright/test";
+import fs from "node:fs";
+import { blank, parseKern } from "../../src/model";
 
 test("study help keeps a clear gap above its feedback in both themes and widths", async ({ page }) => {
+  const rows = JSON.parse(fs.readFileSync("public/sources/fux.json", "utf8"));
+  const score = blank(parseKern(rows.find((row: any) => row.metadata.id === "gap_005")));
+  await page.addInitScript((s) => localStorage.setItem("gradus-recovery", JSON.stringify(s)), score);
   await page.goto("/");
   await expect(page.locator(".engraving svg")).toBeVisible();
   await page.getByRole("button", { name: "Sample answer", exact: true }).click();

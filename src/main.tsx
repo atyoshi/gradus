@@ -47,6 +47,7 @@ import {
   toggleTie,
   tieAvailability,
   entryDuration,
+  allowedEntryDurations,
   prepareEntry,
   restoreSelection,
 } from "./entry";
@@ -814,6 +815,10 @@ function App() {
       return;
     }
     if (!note || locked || !score) return;
+    if (!allowedEntryDurations(score, note.id).includes(duration)) {
+      setNotice("That duration is not available for this species and position.", "status");
+      return;
+    }
     setInputDuration(duration);
   }
   const effectiveDuration = score && note ? entryDuration(score, note.id, inputDuration) : 8;
@@ -1389,7 +1394,7 @@ function App() {
                               aria-label={`${name} note (${shortcut})`}
                               aria-pressed={effectiveDuration === duration}
                               title={`${name} note · ${shortcut}`}
-                              disabled={!note || !!locked || !!score.path}
+                              disabled={!note || !!locked || !!score.path || !allowedEntryDurations(score, note.id).includes(duration)}
                               onClick={() => rhythm(duration)}>
                               <RhythmIcon glyph={glyph} /><small aria-hidden="true">{shortcut}</small>
                             </button>
@@ -1418,7 +1423,7 @@ function App() {
                             [2, "Quarter"],
                             [1, "Eighth"],
                           ].map(([v, t]) => (
-                            <option key={v} value={v}>
+                            <option key={v} value={v} disabled={!!note && !allowedEntryDurations(score, note.id).includes(Number(v))}>
                               {t}
                             </option>
                           ))}

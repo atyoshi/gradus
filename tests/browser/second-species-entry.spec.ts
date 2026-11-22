@@ -44,6 +44,7 @@ for (const figure of [121, 122]) test(`Figure ${figure} note entry does not crea
   expect(tiedNotes.find((n) => n.id === second.id)?.tieStop).toBe(true);
   await expect(page.locator(".vf-stavetie")).toHaveCount(1);
   await page.reload();
+  await expect(page.locator(".engraving svg")).toBeVisible({ timeout: 20000 });
   await expect(page.locator(".vf-stavetie")).toHaveCount(1);
   expect(await draft(page)).toEqual(tied);
 });

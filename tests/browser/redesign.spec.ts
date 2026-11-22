@@ -543,7 +543,7 @@ test("empty lower voices use bass clef with space to enter E2; per-voice clefs p
   const slot = page.locator('[data-note="cp0"]');
   let found = false;
   await expect(slot).toBeVisible();
-  await slot.scrollIntoViewIfNeeded();
+  await expect(async () => { await slot.scrollIntoViewIfNeeded(); }).toPass();
   const box = (await slot.boundingBox())!;
   for (let y = box.height - 5; y > 0; y -= 5) {
     await page.mouse.move(0, 0);

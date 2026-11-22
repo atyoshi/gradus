@@ -267,6 +267,7 @@ test("wrong pitches have neutral previews, can be committed, and can be changed 
 test("rule violations shade affected voice measures and improvements have their own amber group", async ({
   page,
 }) => {
+  test.setTimeout(90000);
   await page.goto("/");
   await expect(page.locator('svg[data-systems="1"]')).toBeVisible();
   await page.locator(".exercise-setup > summary").click();

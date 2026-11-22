@@ -788,27 +788,6 @@ export function check(s: Score): Finding[] {
         run = [];
         continue;
       }
-      if (n.tieStop) continue;
-      if (
-        p?.pitch &&
-        !p.rest &&
-        midi(p.pitch) === midi(n.pitch) &&
-        !n.tieStop
-      ) {
-        if (!run.length) run = [p];
-        run.push(n);
-        if (s.voices.length <= 2 && (species > 1 || run.length >= 3))
-          add(
-            "repetition",
-            species === 1
-              ? "This repeated pitch stalls the line. Fux's corrected Figure 15 retains three attacks, so treat this as advice about shape rather than an unconditional prohibition."
-              : species === 5
-                ? "This florid note is rearticulated. Fux retains such figures in the fifth-species models; consider whether a tie or a new pitch would make this phrase clearer."
-                : "Repeated attacks interrupt this species. Use movement or a properly notated suspension.",
-            run,
-            species === 1 || species === 5 ? "suggestion" : "error",
-          );
-      } else run = [n];
       const last = n.time >= (s.bars - 1) * 8,
         penultimate = n.time >= (s.bars - 2) * 8;
       if (
@@ -840,6 +819,27 @@ export function check(s: Score): Finding[] {
           "Fourth species uses half-note syncopations and prepared ties.",
           [n],
         );
+      if (n.tieStop) continue;
+      if (
+        p?.pitch &&
+        !p.rest &&
+        midi(p.pitch) === midi(n.pitch) &&
+        !n.tieStop
+      ) {
+        if (!run.length) run = [p];
+        run.push(n);
+        if (s.voices.length <= 2 && (species > 1 || run.length >= 3))
+          add(
+            "repetition",
+            species === 1
+              ? "This repeated pitch stalls the line. Fux's corrected Figure 15 retains three attacks, so treat this as advice about shape rather than an unconditional prohibition."
+              : species === 5
+                ? "This florid note is rearticulated. Fux retains such figures in the fifth-species models; consider whether a tie or a new pitch would make this phrase clearer."
+                : "Repeated attacks interrupt this species. Use movement or a properly notated suspension.",
+            run,
+            species === 1 || species === 5 ? "suggestion" : "error",
+          );
+      } else run = [n];
       if (n.duration === 1 && species === 5) {
         const prev = v.notes[i - 1],
           next = v.notes[i + 1];

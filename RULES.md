@@ -4,7 +4,7 @@ Authority: Fux, *Gradus ad Parnassum* (Vienna, 1725), especially printed pp. 41â
 
 ## Runtime contract
 
-Checking is always active and never blocks note entry. Results carry `fux-1725-v9`. A blank slot is unknown, not a rest. Checks needing an unknown pitch or bass wait; selection and hover do not alter the score. Results distinguish incomplete writing, definite violations, unresolved contextual questions (`needs-review`), and passing the implemented checks. Craft advice alone does not prevent a pass. Old results cannot announce a pass while an edit is being checked.
+Checking is always active and does not block pitch entry. In species 1â€“4, the rhythm controls prevent selecting durations outside the implemented species and position constraints; historical assigned rhythms and existing drafts are retained. Florid entry remains unrestricted by these controls. Results carry `fux-1725-v9`. A blank slot is unknown, not a rest. Checks needing an unknown pitch or bass wait; selection and hover do not alter the score. Results distinguish incomplete writing, definite violations, unresolved contextual questions (`needs-review`), and passing the implemented checks. Craft advice alone does not prevent a pass. Old results cannot announce a pass while an edit is being checked.
 
 Findings identify the affected voices, pitches, bars and beats, distinguish rules, craft advice, study requirements and review questions, and link to an original lesson with a playable example and source pages. Positive feedback waits for a complete score without errors or review questions. Lesson fragments illustrate a local idea; they are not complete assessed compositions.
 

@@ -91,6 +91,8 @@ for (const value of [8, 6, 4, 3, 2, 1]) {
     await slot.click();
     const committed = page.locator('[id="vf-score-note-entry0"]');
     await expect(committed).toBeVisible();
+    // React can replace the SVG between visibility and geometry reads.
+    await expect.poll(async () => (await engraving(committed)).width).toBeGreaterThan(0);
     const after = await engraving(committed);
     expect(after.glyphs).toEqual(before.glyphs);
     expect(after.heads).toBe(before.heads);

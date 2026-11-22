@@ -15,6 +15,24 @@ function untouchedMeasure(voice: Voice, note: Note) {
     .every((n) => !n.pitch && !n.rest && !n.tieStart && !n.tieStop);
 }
 
+/** Rhythm choices for this voice and position; imported rhythms remain intact. */
+export function allowedEntryDurations(score: Score, id: string): number[] {
+  const voice = score.voices.find((v) => v.notes.some((n) => n.id === id));
+  const note = voice?.notes.find((n) => n.id === id);
+  if (!voice || !note || voice.locked) return [];
+  const species = assignedSpecies(score, voice);
+  if (score.species === 5 || species === 5) return [1, 2, 3, 4, 6, 8];
+  const final = note.time >= (score.bars - 1) * 8;
+  const penultimate = note.time >= (score.bars - 2) * 8;
+  const values = final ? [8]
+    : species === 1 ? (score.voices.length > 2 && score.species > 1 ? [4, 8] : [8])
+    : species === 2 ? (score.voices.length > 2 || penultimate ? [4, 8] : [4])
+    : species === 3 ? (score.voices.length > 2 ? [2, 8] : [2])
+    : species === 4 ? [4, 8] : [];
+  const remaining = 8 - note.time % 8;
+  return values.filter((duration) => duration <= remaining && remaining % duration === 0);
+}
+
 // Explicit rhythm edits replace the remainder of the selected measure.
 export function resizeMeasure(v: Voice, note: Note, duration: number) {
   const end = (Math.floor(note.time / 8) + 1) * 8;
@@ -48,6 +66,8 @@ export function entryDuration(
   const note = voice?.notes.find((n) => n.id === id);
   if (!voice || !note) return 8;
   const start = Math.floor(note.time / 8) * 8;
+  if (preferred !== null && score.species !== 5 && assignedSpecies(score, voice) !== 5 && !allowedEntryDurations(score, id).includes(preferred))
+    return note.duration;
   return preferred !== null &&
     !score.path &&
     !voice.locked &&
@@ -68,7 +88,8 @@ export function prepareEntry(
   const note = voice?.notes.find((n) => n.id === id);
   if (!voice || !note) return;
   const duration = entryDuration(score, id, preferred);
-  if (preferred !== null && !score.path && untouchedMeasure(voice, note))
+  if (preferred !== null && !score.path && untouchedMeasure(voice, note) &&
+      (score.species === 5 || assignedSpecies(score, voice) === 5 || allowedEntryDurations(score, id).includes(preferred)))
     resizeMeasure(voice, note, duration);
   return voice.notes.find((n) => n.id === id);
 }

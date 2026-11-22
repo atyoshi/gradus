@@ -14,6 +14,18 @@ async function openStudy(page: Page) {
       has: page.getByRole("heading", { name: "Fux · Figure 5", exact: true }),
     })
     .click();
+  // These free-rhythm tests exercise the unrestricted florid editor, not
+  // first-species restrictions. Keep the familiar whole-note source slots.
+  await page.evaluate(() => {
+    const s = JSON.parse(localStorage.getItem("gradus-recovery")!);
+    s.id = "free-rhythm-fixture";
+    s.species = 5;
+    s.source = undefined;
+    s.voices.filter((v: { locked: boolean }) => !v.locked).forEach((v: { species: number }) => { v.species = 5; });
+    localStorage.setItem("gradus-recovery", JSON.stringify(s));
+  });
+  await page.reload();
+  await expect(page.locator('[data-note="v1n8"]')).toBeVisible();
 }
 
 async function draft(page: Page): Promise<Score> {
@@ -257,7 +269,7 @@ test("opening another exercise resets duration memory and path rhythms stay assi
   expect((await draft(page)).voices[0].notes.map((n) => n.duration)).toEqual(
     Array(8).fill(8),
   );
-  await control.selectOption("2");
+  await expect(control.locator('option[value="2"]')).toBeDisabled();
   await page.getByRole("button", { name: /The path/ }).click();
   const stage = page.locator(".path-stage").filter({
     has: page.getByRole("heading", { name: "Note against note", exact: true }),
