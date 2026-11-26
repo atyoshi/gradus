@@ -40,6 +40,10 @@ async function selectSlot(page: Page, id: string) {
   await slot.press("Enter");
 }
 
+const durationButtons = (page: Page) => page.getByRole("group", { name: "Next note duration" });
+const durationButton = (page: Page, duration: string | number) => durationButtons(page).locator(`button[data-duration="${duration}"]`);
+const activeDuration = (page: Page) => durationButtons(page).locator('button[aria-pressed="true"]');
+
 test("duration controls agree when a whole note cannot fit at the barline", async ({ page }) => {
   await openStudy(page);
   await page.getByRole("button", { name: /^Half note/ }).click();
@@ -47,14 +51,14 @@ test("duration controls agree when a whole note cannot fit at the barline", asyn
   await page.keyboard.press("a");
   await expect(page.locator('[data-note="v1n12"]')).toHaveAttribute("fill", "var(--selection)");
   await page.getByRole("button", { name: /^Whole note/ }).click();
-  await expect(page.getByLabel("Note duration", { exact: true })).toHaveValue("4");
+  await expect(activeDuration(page)).toHaveAttribute("data-duration", "4");
   await expect(page.getByRole("button", { name: /^Half note/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: /^Whole note/ })).toHaveAttribute("aria-pressed", "false");
   await expect(page.getByRole("status").filter({ hasText: "Only half" })).toBeVisible();
   await page.keyboard.press("b");
   expect((await draft(page)).voices[0].notes.find((n) => n.time === 12)?.duration).toBe(4);
   await expect(page.getByRole("button", { name: /^Whole note/ })).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByLabel("Note duration", { exact: true })).toHaveValue("8");
+  await expect(activeDuration(page)).toHaveAttribute("data-duration", "8");
 });
 
 for (const [name, shortcut, duration] of [["Whole", "7", 8], ["Half", "6", 4], ["Quarter", "5", 2], ["Eighth", "4", 1]] as const) {
@@ -64,7 +68,7 @@ for (const [name, shortcut, duration] of [["Whole", "7", 8], ["Half", "6", 4], [
     const button = page.getByRole("button", { name: new RegExp(`^${name} note`) });
     await button.click();
     await expect(button).toHaveAttribute("aria-pressed", "true");
-    await expect(page.getByLabel("Note duration", { exact: true })).toHaveValue(String(duration));
+    await expect(activeDuration(page)).toHaveAttribute("data-duration", String(duration));
     await page.locator('[data-note="v1n8"]').hover();
     await expect(page.locator(".pitch-preview")).toHaveAttribute("data-preview-duration", String(duration));
     await page.keyboard.press("a");
@@ -85,7 +89,7 @@ for (const [eighths, expected] of [[1, 6], [3, 4]] as const) {
     for (let i = 0; i < eighths; i++) await page.keyboard.press("a");
     const slot = page.locator(`[data-note="v1n${8 + eighths}"]`);
     await page.getByRole("button", { name: /^Whole note/ }).click();
-    await expect(page.getByLabel("Note duration", { exact: true })).toHaveValue(String(expected));
+    await expect(activeDuration(page)).toHaveAttribute("data-duration", String(expected));
     await slot.hover();
     await expect(page.locator(".pitch-preview")).toHaveAttribute("data-preview-duration", String(expected));
     await page.keyboard.press("b");
@@ -98,7 +102,7 @@ for (const [eighths, expected] of [[1, 6], [3, 4]] as const) {
 
 test("a protected written note shows the actual duration and preserves the later note", async ({ page }) => {
   await openStudy(page);
-  await page.getByLabel("Note duration", { exact: true }).selectOption("4");
+  await durationButton(page, 4).click();
   await selectSlot(page, "v1n8");
   await page.keyboard.press("a");
   await page.keyboard.press("b");
@@ -117,11 +121,10 @@ for (const duration of [4, 2]) {
     page,
   }) => {
     await openStudy(page);
-    const control = page.getByLabel("Note duration", { exact: true });
-    await control.selectOption(String(duration));
+      await durationButton(page, String(duration)).click();
     const before = await draft(page);
     await selectSlot(page, "v1n8");
-    await expect(control).toHaveValue(String(duration));
+    await expect(activeDuration(page)).toHaveAttribute("data-duration", String(duration));
     expect(await draft(page)).toEqual(before);
 
     await page.locator('[data-note="v1n8"]').hover();
@@ -157,7 +160,7 @@ for (const duration of [4, 2]) {
       "fill",
       "var(--selection)",
     );
-    await expect(control).toHaveValue(String(duration));
+    await expect(activeDuration(page)).toHaveAttribute("data-duration", String(duration));
     await page.keyboard.press("c");
     await expect(
       page.locator(`[data-note="v1n${16 + duration}"]`),
@@ -182,15 +185,14 @@ for (const duration of [4, 2]) {
     expect(await draft(page)).toEqual(saved);
     // The session preference resets on reload, so this untouched bar is whole.
     await selectSlot(page, "v1n24");
-    await expect(control).toHaveValue("8");
+    await expect(activeDuration(page)).toHaveAttribute("data-duration", "8");
   });
 
   test(`mouse entry and preview retain duration ${duration} across measures`, async ({
     page,
   }) => {
     await openStudy(page);
-    const control = page.getByLabel("Note duration", { exact: true });
-    await control.selectOption(String(duration));
+      await durationButton(page, String(duration)).click();
     for (const time of [8, 16]) {
       const slot = page.locator(`[data-note="v1n${time}"]`);
       await slot.hover();
@@ -209,7 +211,7 @@ for (const duration of [4, 2]) {
       expect(notes[0].pitch).not.toBeNull();
     }
     await selectSlot(page, "v1n24");
-    await expect(control).toHaveValue(String(duration));
+    await expect(activeDuration(page)).toHaveAttribute("data-duration", String(duration));
   });
 }
 
@@ -217,22 +219,21 @@ test("dotted remainders keep the preference and existing music keeps its rhythm"
   page,
 }) => {
   await openStudy(page);
-  const control = page.getByLabel("Note duration", { exact: true });
   // A written whole note must remain whole when later selected or edited.
   await page.locator('[data-note="v1n16"]').click();
   await selectSlot(page, "v1n0");
-  await control.selectOption("3");
+  await durationButton(page, "3").click();
   await selectSlot(page, "v1n8");
   await page.keyboard.press("a");
   await page.keyboard.press("b");
-  await expect(control).toHaveValue("2");
+  await expect(activeDuration(page)).toHaveAttribute("data-duration", "2");
   await page.locator('[data-note="v1n14"]').hover();
   await expect(page.locator(".pitch-preview")).toHaveAttribute(
     "data-preview-duration",
     "2",
   );
   await page.keyboard.press("c");
-  await expect(control).toHaveValue("8");
+  await expect(activeDuration(page)).toHaveAttribute("data-duration", "8");
   const before = await draft(page);
   await page.keyboard.press("d");
   const after = await draft(page);
@@ -244,7 +245,7 @@ test("dotted remainders keep the preference and existing music keeps its rhythm"
   expect(after.voices[0].notes.filter((n) => n.time < 16)).toEqual(
     before.voices[0].notes.filter((n) => n.time < 16),
   );
-  await expect(control).toHaveValue("3");
+  await expect(activeDuration(page)).toHaveAttribute("data-duration", "3");
   await page.keyboard.press("e");
   expect(
     (await draft(page)).voices[0].notes
@@ -257,26 +258,25 @@ test("opening another exercise resets duration memory and path rhythms stay assi
   page,
 }) => {
   await openStudy(page);
-  const control = page.getByLabel("Note duration", { exact: true });
-  await control.selectOption("2");
+  await durationButton(page, "2").click();
   await page.locator(".exercise-setup > summary").click();
   await page
     .getByRole("button", { name: "Start from scratch", exact: true })
     .click();
-  await expect(control).toHaveValue("8");
+  await expect(durationButtons(page)).toHaveCount(0);
   await selectSlot(page, "v1n8");
   await page.keyboard.press("a");
   expect((await draft(page)).voices[0].notes.map((n) => n.duration)).toEqual(
     Array(8).fill(8),
   );
-  await expect(control.locator('option[value="2"]')).toBeDisabled();
+  await expect(durationButtons(page)).toHaveCount(0);
   await page.getByRole("button", { name: /The path/ }).click();
   const stage = page.locator(".path-stage").filter({
     has: page.getByRole("heading", { name: "Note against note", exact: true }),
   });
   await stage.locator("summary").click();
   await stage.locator(".exercise").first().click();
-  await expect(control).toBeDisabled();
+  await expect(durationButtons(page)).toHaveCount(0);
   const assigned = await draft(page);
   expect(assigned.path).toBeDefined();
   expect(assigned.cantusOnly).not.toBe(true);
@@ -314,10 +314,9 @@ test("rest entry uses the chosen duration and eighth-note previews include a fla
   page,
 }) => {
   await openStudy(page);
-  const control = page.getByLabel("Note duration", { exact: true });
-  await control.selectOption("4");
   await selectSlot(page, "v1n8");
-  await page.getByRole("button", { name: "Rest", exact: true }).click();
+  await page.getByRole("button", { name: "Half rest", exact: true }).click();
+  await expect(page.locator('[data-note="v1n12"]')).toHaveAttribute("fill", "var(--selection)");
   const withRest = await draft(page);
   const notes = withRest.voices[0].notes.filter(
     (n) => n.time >= 8 && n.time < 16,
@@ -325,9 +324,9 @@ test("rest entry uses the chosen duration and eighth-note previews include a fla
   expect(notes.map((n) => n.duration)).toEqual([4, 4]);
   expect(notes[0].rest).toBe(true);
   await selectSlot(page, "v1n0");
-  await control.selectOption("1");
+  await durationButton(page, "1").click();
   await selectSlot(page, "v1n12");
-  await expect(control).toHaveValue("1");
+  await expect(activeDuration(page)).toHaveAttribute("data-duration", "1");
   await page.keyboard.press("a");
   expect(
     (await draft(page)).voices[0].notes

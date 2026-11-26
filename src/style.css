@@ -690,12 +690,22 @@ button:has(> .editor-icon) {
   line-height: 1.25;
 }
 .note-toolbar .editor-group button:not(:has(.editor-icon)) { padding-inline: 12px; }
-.duration-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
-.note-toolbar .duration-buttons button { display: inline-flex; align-items: center; gap: 6px; font-size: 22px; line-height: 1; }
+.duration-buttons { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; flex-basis: 100%; }
+.rhythm-kind { flex: 0 0 54px; color: var(--muted); font-size: 12px; }
+.rhythm-kind kbd { margin-inline-start: 2px; }
+.note-toolbar .duration-buttons button:not(:has(.editor-icon)) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 58px;
+  padding-inline: 5px;
+  line-height: 1;
+}
 .duration-glyph { width: 27px; height: 33px; flex: none; }
 .duration-buttons small { font-size: 11px; color: var(--muted); }
 .rhythm-notice { flex-basis: 100%; color: var(--muted); font-size: 13px; }
-.note-toolbar select { width: 150px; padding-left: 12px; }
+
 .note-toolbar .astryx-button { padding-inline: 12px; }
 .path-filter {
   display: flex;

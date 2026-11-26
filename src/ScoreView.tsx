@@ -22,6 +22,7 @@ import {
   pitch,
   label,
   at,
+  assignedSpecies,
 } from "./model";
 import { voiceMeasureFeedback } from "./feedback";
 import { entryDuration } from "./entry";
@@ -215,6 +216,7 @@ export function ScoreView({
       }[] = [];
       score.voices.forEach((v, vi) => {
         const { y, clef, bottom } = staffLayouts[vi];
+        const florid = assignedSpecies(score, v) === 5;
         const stave = new Stave(x, y, bw);
         if (bar === 0) stave.addClef(clef);
         stave.setContext(ctx).draw();
@@ -234,7 +236,7 @@ export function ScoreView({
         const accidentals = new Map<string, number>();
         const notes = ns.map((n) => {
           if (!n.pitch && !n.rest) {
-            const ghost = new GhostNote({ duration: duration(n.duration) });
+            const ghost = new GhostNote({ duration: duration(n.duration, florid) });
             if ([6, 3, 1.5].includes(n.duration))
               Dot.buildAndAttach([ghost], { all: true });
             return ghost;
@@ -248,6 +250,7 @@ export function ScoreView({
             clef,
             !!n.rest,
             previousAlter,
+            florid,
           );
           if (!n.rest) accidentals.set(accidentalKey, p.alter);
           const color = findings.some(
@@ -538,7 +541,7 @@ export function ScoreView({
             n.pitch.octave === preview.p.octave,
         )
         .at(-1)?.pitch?.alter || 0;
-    const note = engravedNote(preview.p, value, slot.clef, false, previous);
+    const note = engravedNote(preview.p, value, slot.clef, false, previous, assignedSpecies(score, score.voices[slot.vi]) === 5);
     note.setStyle({ fillStyle: "var(--accent)", strokeStyle: "var(--accent)" });
     note.setLedgerLineStyle({ strokeStyle: "var(--accent)", lineWidth: 1.2 });
     // Use an isolated context so hovering never clears or reformats the score.

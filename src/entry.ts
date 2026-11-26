@@ -1,4 +1,5 @@
-import { extendedTieReason } from "./ties";
+import { crossesBarline, extendedTieReason, permitsSpeciesTie } from "./ties";
+import { isClosingBar, permitsRest } from "./rhythm";
 import {
   type Score,
   type Voice,
@@ -6,49 +7,54 @@ import {
   type Pitch,
   clone,
   assignedSpecies,
+  clearSecondSpeciesTies,
 } from "./model";
 
-function untouchedMeasure(voice: Voice, note: Note) {
-  const start = Math.floor(note.time / 8) * 8;
-  return voice.notes
-    .filter((n) => n.time >= note.time && n.time < start + 8)
-    .every((n) => !n.pitch && !n.rest && !n.tieStart && !n.tieStop);
+const entryValues = [8, 6, 4, 3, 2, 1];
+const occupied = (note: Note) => note.pitch || note.rest || note.tieStart || note.tieStop;
+
+function blankSpanEnd(voice: Voice, note: Note) {
+  const barEnd = (Math.floor(note.time / 8) + 1) * 8;
+  const nextWritten = voice.notes.find((n) => n.time > note.time && occupied(n));
+  return Math.min(barEnd, nextWritten?.time ?? barEnd);
 }
 
-/** Rhythm choices for this voice and position; imported rhythms remain intact. */
-export function allowedEntryDurations(score: Score, id: string): number[] {
+function entrySlot(score: Score, id: string) {
   const voice = score.voices.find((v) => v.notes.some((n) => n.id === id));
-  const note = voice?.notes.find((n) => n.id === id);
-  if (!voice || !note || voice.locked) return [];
-  const species = assignedSpecies(score, voice);
-  if (score.species === 5 || species === 5) return [1, 2, 3, 4, 6, 8];
-  const final = note.time >= (score.bars - 1) * 8;
-  const penultimate = note.time >= (score.bars - 2) * 8;
-  const values = final ? [8]
-    : species === 1 ? (score.voices.length > 2 && score.species > 1 ? [4, 8] : [8])
-    : species === 2 ? (score.voices.length > 2 || penultimate ? [4, 8] : [4])
-    : species === 3 ? (score.voices.length > 2 ? [2, 8] : [2])
-    : species === 4 ? [4, 8] : [];
-  const remaining = 8 - note.time % 8;
-  return values.filter((duration) => duration <= remaining && remaining % duration === 0);
+  return { voice, note: voice?.notes.find((n) => n.id === id) };
 }
 
-// Explicit rhythm edits replace the remainder of the selected measure.
+export function editableRhythm(score: Score, id: string) {
+  const { voice, note } = entrySlot(score, id);
+  return !!voice && !!note && !voice.locked && assignedSpecies(score, voice) === 5 &&
+    !isClosingBar(score, note);
+}
+
+/** Only florid voices offer a rhythm choice. Other voices retain the exercise's slots. */
+export function allowedEntryDurations(score: Score, id: string): number[] {
+  const { voice, note } = entrySlot(score, id);
+  if (!voice || !note || voice.locked) return [];
+  return editableRhythm(score, id) ? [...entryValues].reverse() : [note.duration];
+}
+
+// Reflow only the blank span, stopping at the next written event or barline.
 export function resizeMeasure(v: Voice, note: Note, duration: number) {
-  const end = (Math.floor(note.time / 8) + 1) * 8;
+  const end = blankSpanEnd(v, note);
   if (duration <= 0 || note.time + duration > end)
     throw Error("The note would extend beyond this bar.");
   const notes = [{ ...note, duration, tieStart: false, tieStop: false }];
-  for (let time = note.time + duration; time < end; time += duration) {
+  for (let time = note.time + duration; time < end - 1e-9;) {
+    const length = entryValues.find((value) => value <= duration && value <= end - time) ?? end - time;
     notes.push({
-      id: `${v.id}n${time}`,
+      id: v.notes.find((n) => n.time === time)?.id ?? `${v.id}n${time}`,
       time,
-      duration: Math.min(duration, end - time),
+      duration: length,
       pitch: null,
       rest: false,
       tieStart: false,
       tieStop: false,
     });
+    time += length;
   }
   v.notes = [
     ...v.notes.filter((n) => n.time < note.time),
@@ -65,14 +71,10 @@ export function entryDuration(
   const voice = score.voices.find((v) => v.notes.some((n) => n.id === id));
   const note = voice?.notes.find((n) => n.id === id);
   if (!voice || !note) return 8;
-  const start = Math.floor(note.time / 8) * 8;
-  if (preferred !== null && score.species !== 5 && assignedSpecies(score, voice) !== 5 && !allowedEntryDurations(score, id).includes(preferred))
-    return note.duration;
   return preferred !== null &&
-    !score.path &&
-    !voice.locked &&
-    untouchedMeasure(voice, note)
-    ? [8, 6, 4, 3, 2, 1].find((duration) => duration <= preferred && duration <= start + 8 - note.time) ?? note.duration
+    editableRhythm(score, id) &&
+    !occupied(note)
+    ? entryValues.find((duration) => duration <= preferred && duration <= blankSpanEnd(voice, note) - note.time) ?? note.duration
     : note.duration;
 }
 
@@ -87,11 +89,54 @@ export function prepareEntry(
   );
   const note = voice?.notes.find((n) => n.id === id);
   if (!voice || !note) return;
+  clearSecondSpeciesTies(score, voice);
   const duration = entryDuration(score, id, preferred);
-  if (preferred !== null && !score.path && untouchedMeasure(voice, note) &&
-      (score.species === 5 || assignedSpecies(score, voice) === 5 || allowedEntryDurations(score, id).includes(preferred)))
+  if (preferred !== null && editableRhythm(score, id) && !occupied(note) &&
+      note.time + duration <= blankSpanEnd(voice, note))
     resizeMeasure(voice, note, duration);
   return voice.notes.find((n) => n.id === id);
+}
+
+export function restAvailability(score: Score, id: string): string | null {
+  const { voice, note } = entrySlot(score, id);
+  if (!voice || !note) return "Select a note to enter a rest.";
+  if (voice.locked) return "The given cantus is read-only.";
+  if (score.path && assignedSpecies(score, voice) !== 5) return "This study keeps its assigned rests.";
+  if (note.rest) return null;
+  if (isClosingBar(score, note)) return "Close the exercise with a sounding whole note.";
+  if (!permitsRest(score, voice, note)) return "A rest is not available at this position in this species.";
+  if (note.tieStart || note.tieStop) return "Remove the tie before entering a rest.";
+  return null;
+}
+
+export function toggleRest(score: Score, id: string, preferred: number | null) {
+  if (restAvailability(score, id)) return false;
+  const note = prepareEntry(score, id, preferred);
+  if (!note) return false;
+  note.rest = !note.rest;
+  note.pitch = null;
+  return true;
+}
+
+export function enterFloridRest(score: Score, id: string, preferred: number | null) {
+  if (!editableRhythm(score, id) || restAvailability(score, id)) return false;
+  const note = prepareEntry(score, id, preferred);
+  if (!note) return false;
+  note.rest = true;
+  note.pitch = null;
+  return true;
+}
+
+/** Advance past the attack just entered (including its tied continuations). */
+export function nextFloridAttack(score: Score, id: string) {
+  const { voice, note } = entrySlot(score, id);
+  if (!voice || !note) return id;
+  let index = voice.notes.indexOf(note);
+  while (voice.notes[index].tieStart && voice.notes[index + 1]?.tieStop &&
+      !voice.notes[index + 1].rest &&
+      voice.notes[index].time + voice.notes[index].duration === voice.notes[index + 1].time)
+    index++;
+  return voice.notes[index + 1]?.id ?? id;
 }
 
 export function restoreSelection(target: Score, previous: Score, id: string) {
@@ -173,13 +218,19 @@ export function tieAvailability(score: Score, id: string): string | null {
     next = voice?.notes[index + 1];
   if (!voice || !note) return "Select a note to add a tie.";
   if (voice.locked) return "The given cantus is read-only.";
+  if (assignedSpecies(score, voice) === 2) return "Ties are not available in second species.";
   if (!next) return "There is no following slot to tie to.";
   if (note.tieStart) return null;
+  if (!permitsSpeciesTie(score, voice, note))
+    return "Tied syncopations belong to fourth or fifth species.";
   if (note.rest || next.rest) return "A tie cannot connect to a rest.";
   if (!note.pitch) return "Write a pitch before adding a tie.";
   if (note.time + note.duration !== next.time)
     return "Ties must join adjacent slots.";
-  return extendedTieReason(score, voice, index);
+  return extendedTieReason(score, voice, index) ??
+    (assignedSpecies(score, voice) === 4 && !crossesBarline(note, next)
+      ? "Fourth-species suspensions tie an upbeat to the following downbeat."
+      : null);
 }
 
 export function toggleTie(score: Score, id: string) {

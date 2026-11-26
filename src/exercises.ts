@@ -12,7 +12,7 @@ import {
   at,
   assignSpecies,
 } from "./model.ts";
-import { check, assess, RULE_VERSION } from "./rules.ts";
+import { check, assess, fitsAeolianCadentialSixth, RULE_VERSION } from "./rules.ts";
 export function catalogue(rows: any[]): Score[] {
   return rows
     .map(parseKern)
@@ -74,6 +74,14 @@ export function solve(
               ]
             : [p],
         );
+    }
+    if (work.mode === "Aeolian" && n.time === (work.bars - 2) * 8 && !n.tieStop) {
+      const voice = work.voices[vi];
+      const inflections = candidates.flatMap((p) => [-1, 1].flatMap((alter) => {
+        const inflected = { ...p, alter };
+        return fitsAeolianCadentialSixth(work, voice, n, inflected) ? [inflected] : [];
+      }));
+      candidates.unshift(...inflections);
     }
     if (ref) candidates.unshift(ref);
     for (const p of candidates) {

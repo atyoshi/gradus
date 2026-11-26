@@ -65,9 +65,9 @@ test("Figure 121 second-species draft does not inherit its source answer's tie",
   enterPitch(draft, following.id, pitch(35), null);
   expect(preceding.tieStart).toBeFalsy();
   expect(following.tieStop).toBeFalsy();
-  expect(toggleTie(draft, preceding.id)).toBe(true);
-  expect(preceding.tieStart).toBe(true);
-  expect(following.tieStop).toBe(true);
+  expect(toggleTie(draft, preceding.id)).toBe(false);
+  expect(preceding.tieStart).toBeFalsy();
+  expect(following.tieStop).toBeFalsy();
 });
 
 test("clearing Figure 121 does not restore a source-answer tie", () => {
@@ -95,13 +95,12 @@ test("every second-species source slot changes only the entered note", () => {
   }
 });
 
-test("resuming an existing draft preserves even explicitly written ties", () => {
-  const original = source("gap_121");
-  const draft = blank(original);
+test("a second-species line cannot add a tie even outside a guided study", () => {
+  const draft = blank(source("gap_123"));
   const voice = draft.voices.find((v) => !v.locked && v.species === 2)!;
-  enterPitch(draft, voice.notes.find((n) => n.time === 68)!.id, pitch(35), null);
-  toggleTie(draft, voice.notes.find((n) => n.time === 68)!.id);
-  draft.path = { studyId: original.id, species: 2, voices: 3, mode: original.mode };
+  const note = voice.notes.find((n) => n.time === 68)!;
+  enterPitch(draft, note.id, pitch(24), null);
   const before = clone(draft);
-  expect(pathStudy(original, [draft], null)).toEqual(before);
+  expect(toggleTie(draft, note.id)).toBe(false);
+  expect(draft).toEqual(before);
 });

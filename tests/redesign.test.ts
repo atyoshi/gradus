@@ -162,7 +162,9 @@ test("analysis does not bridge rests, blanks or count tied continuations as atta
   s.voices[0].notes[1].pitch = null;
   expect(analyze(s, "n0", []).partial).toBe(true);
   s.voices[0].notes[1].pitch = pitch(35);
-  toggleTie(s, "n0");
+  // Analysis must still recognize an existing tie even when entry would reject it.
+  s.voices[0].notes[0].tieStart = true;
+  s.voices[0].notes[1].tieStop = true;
   expect(analyze(s, "n0", []).comparedAttacks).toBe(2);
 });
 test("unrelated violations do not hide a recovered leap strength", () => {

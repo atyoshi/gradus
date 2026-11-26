@@ -1,4 +1,17 @@
-import { assignedSpecies, type Score, type Voice } from "./model.ts";
+import { assignedSpecies, type Note, type Score, type Voice } from "./model.ts";
+
+export function crossesBarline(note: Note, next: Note) {
+  return note.time + note.duration === next.time &&
+    next.time % 8 === 0 && note.time < next.time;
+}
+
+export function permitsSpeciesTie(score: Score, voice: Voice, note: Note) {
+  const species = assignedSpecies(score, voice);
+  // Fuller second-species source cadences tie an upbeat into the penultimate bar.
+  return species >= 4 ||
+    (species === 2 && score.voices.length > 2 && note.duration === 4 &&
+      note.time + note.duration === (score.bars - 2) * 8);
+}
 export function extendedTieNotes(voice: Voice) {
   return voice.notes.filter(
     (n, i) =>

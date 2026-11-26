@@ -114,7 +114,7 @@ test("guided tie editing is one undoable change, updates connected pitches and s
   await select(page, "cp1");
   await expect(
     page.getByLabel("Note duration", { exact: true }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   const before = await draft(page);
   await page.getByRole("button", { name: "Add tie", exact: true }).click();
   await expect(

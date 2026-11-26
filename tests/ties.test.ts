@@ -30,6 +30,61 @@ const fixture = (): Score => ({
     },
   ],
 });
+
+test.each([1, 3])("three-voice species %i cannot borrow a second-species cadential tie", (species) => {
+  const s = fixture();
+  const voice = s.voices[0];
+  s.voices.splice(1, 0, { ...structuredClone(s.voices[1]), id: "middle", locked: false });
+  voice.species = s.species = species;
+  voice.notes = emptyPattern("cp", s.bars, species);
+  const i = voice.notes.findIndex((n) => n.time === (s.bars - 2) * 8);
+  const [before, after] = voice.notes.slice(i - 1, i + 1);
+  before.pitch = after.pitch = pitch(35);
+  expect(tieAvailability(s, before.id)).not.toBeNull();
+  before.tieStart = after.tieStop = true;
+  expect(check(s)).toContainEqual(expect.objectContaining({
+    rule: "species-tie", severity: "error", notes: [before.id],
+  }));
+});
+
+test.each([1, 3])("species %i does not let entry create a tie the checker rejects", (species) => {
+  const s = fixture();
+  const v = s.voices[0];
+  v.species = s.species = species;
+  v.notes = emptyPattern("cp", s.bars, species);
+  const i = v.notes.findIndex((n) => n.time === 8);
+  const [first, next] = v.notes.slice(i, i + 2);
+  first.pitch = pitch(35);
+  const before = structuredClone(s);
+  expect(toggleTie(s, first.id)).toBe(false);
+  expect(s).toEqual(before);
+  // An existing/imported tie is diagnosed, not silently removed by the checker.
+  first.tieStart = next.tieStop = true;
+  next.pitch = first.pitch;
+  const imported = structuredClone(s);
+  expect(check(s).some((f) => f.rule === "species-tie" && f.notes.includes(first.id))).toBe(true);
+  expect(s).toEqual(imported);
+  expect(toggleTie(s, first.id)).toBe(true);
+});
+
+// Fux Book II, First Exercise, fourth species: upbeat to the following downbeat.
+test("a same-bar fourth-species tie is blocked in entry and cannot satisfy the checker", () => {
+  const s = fixture();
+  const v = s.voices[0];
+  v.notes.forEach((n) => { n.tieStart = n.tieStop = false; });
+  const [downbeat, upbeat, nextDownbeat] = v.notes.slice(2, 5);
+  const before = structuredClone(s);
+  expect(toggleTie(s, downbeat.id)).toBe(false);
+  expect(s).toEqual(before);
+  downbeat.tieStart = upbeat.tieStop = true;
+  expect(check(s)).toContainEqual(expect.objectContaining({
+    rule: "suspension-chain", severity: "error",
+  }));
+  expect(toggleTie(s, downbeat.id)).toBe(true); // Existing invalid tie can be removed.
+  expect(toggleTie(s, upbeat.id)).toBe(true);
+  expect(nextDownbeat.tieStop).toBe(true);
+  expect(check(s).some((f) => f.rule === "suspension-chain")).toBe(false);
+});
 test("extended ties are blocked from either end without mutation while removal works", () => {
   const s = fixture(),
     before = structuredClone(s);

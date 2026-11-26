@@ -30,6 +30,7 @@ import {
   complete,
   upgradeScore,
   solutionMatches,
+  assignedSpecies,
 } from "./model";
 import { lessons, studyLesson } from "./teaching";
 import { LessonPanel } from "./LessonPanel";
@@ -47,8 +48,12 @@ import {
   toggleTie,
   tieAvailability,
   entryDuration,
+  editableRhythm,
   allowedEntryDurations,
-  prepareEntry,
+  enterFloridRest,
+  nextFloridAttack,
+  restAvailability,
+  toggleRest,
   restoreSelection,
 } from "./entry";
 import { cantus, fromCantus, cantusKey } from "./exercises";
@@ -63,6 +68,10 @@ import {
   MAX_TEMPO,
 } from "./editor";
 import "./style.css";
+function voiceForNote(score: Score, id: string) {
+  return score.voices.find((voice) => voice.notes.some((note) => note.id === id));
+}
+
 const worker = new Worker(new URL("./worker.ts", import.meta.url), {
   type: "module",
 });
@@ -116,6 +125,15 @@ const speciesNames = [
   "Suspensions",
   "Florid counterpoint",
 ];
+// SMuFL individual note and rest glyphs, with an augmentation dot where needed.
+const floridValues = [
+  [8, "Whole", "\uE1D2", "\uE4E3", false, "7"],
+  [6, "Dotted half", "\uE1D3", "\uE4E4", true, ""],
+  [4, "Half", "\uE1D3", "\uE4E4", false, "6"],
+  [3, "Dotted quarter", "\uE1D5", "\uE4E5", true, ""],
+  [2, "Quarter", "\uE1D5", "\uE4E5", false, "5"],
+  [1, "Eighth", "\uE1D7", "\uE4E6", false, "4"],
+] as const;
 function App() {
   const [theme, setTheme] = useState(
     localStorage.getItem("gradus-theme") || "system",
@@ -335,7 +353,7 @@ function App() {
   const candidateId = candidateTarget?.id || "";
   const candidateDuration =
     score && candidateId
-      ? entryDuration(score, candidateId, inputDuration)
+      ? entryDuration(score, candidateId, editableRhythm(score, candidateId) ? inputDuration : null)
       : null;
   const resetPattern = useMemo(
     () => (score && !model ? resetLinePattern(score, selected, catalog) : null),
@@ -366,9 +384,14 @@ function App() {
       )
         return;
       edit((s) => {
-        const n = enterPitch(s, id, p, inputDuration);
+        const n = enterPitch(s, id, p, editableRhythm(s, id) ? inputDuration : null);
         if (!n) return;
         if (advance) {
+          const voice = voiceForNote(s, id)!;
+          if (assignedSpecies(s, voice) === 5) {
+            setSelected(nextFloridAttack(s, id));
+            return;
+          }
           const notes = s.voices.flatMap((v) => (v.locked ? [] : v.notes));
           setSelected(
             advance === "unwritten"
@@ -381,6 +404,12 @@ function App() {
     },
     [edit, inputDuration, instrument],
   );
+  const placePitch = useCallback((id: string, p: Pitch) => {
+    const s = current.current;
+    const voice = s && voiceForNote(s, id);
+    const target = voice?.notes.find((n) => n.id === id);
+    setPitch(id, p, !!s && !!voice && !target?.pitch && assignedSpecies(s, voice) === 5);
+  }, [setPitch]);
   const enterCandidate = useCallback(
     (id: string, p: Pitch) => setPitch(id, p, "unwritten"),
     [setPitch],
@@ -578,11 +607,18 @@ function App() {
         e.shiftKey ? redo() : undo();
         return;
       }
-      const durationKey: Record<string, number> = { "4": 1, "5": 2, "6": 4, "7": 8 };
-      if (!e.metaKey && !e.ctrlKey && !e.altKey && durationKey[e.key]) {
-        e.preventDefault();
-        rhythm(durationKey[e.key]);
-        return;
+      if (!e.metaKey && !e.ctrlKey && !e.altKey) {
+        const value = floridValues.find(([, , , , , shortcut]) => shortcut === e.key);
+        if (value) {
+          e.preventDefault();
+          rhythm(value[0]);
+          return;
+        }
+        if (e.key === "0" && rhythmEditable) {
+          e.preventDefault();
+          placeRest(inputDuration);
+          return;
+        }
       }
       if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         e.preventDefault();
@@ -807,25 +843,29 @@ function App() {
     }
   }
   function rhythm(duration: number) {
-    if (score?.path) {
-      setNotice(
-        "This path study keeps its assigned rhythm. Use free practice for a different setup.",
-        "status",
-      );
-      return;
-    }
-    if (!note || locked || !score) return;
+    if (!note || locked || !score || !editableRhythm(score, note.id)) return;
     if (!allowedEntryDurations(score, note.id).includes(duration)) {
       setNotice("That duration is not available for this species and position.", "status");
       return;
     }
     setInputDuration(duration);
   }
-  const effectiveDuration = score && note ? entryDuration(score, note.id, inputDuration) : 8;
+  function placeRest(duration: number | null) {
+    if (!rhythmEditable || locked || restReason) return;
+    if (duration !== null) setInputDuration(duration);
+    edit((s) => {
+      if (enterFloridRest(s, selected, duration))
+        setSelected(nextFloridAttack(s, selected));
+    });
+  }
+  const rhythmEditable = !!score && !!note && editableRhythm(score, note.id);
+  const selectedVoice = score && note ? voiceForNote(score, note.id) : undefined;
+  const selectedSpecies = score && selectedVoice ? assignedSpecies(score, selectedVoice) : undefined;
+  const effectiveDuration = score && note ? entryDuration(score, note.id, rhythmEditable ? inputDuration : null) : 8;
   const durationNames: Record<number, string> = { 8: "whole", 6: "dotted half", 4: "half", 3: "dotted quarter", 2: "quarter", 1: "eighth" };
-  const durationNotice = inputDuration !== null && note && effectiveDuration !== inputDuration
-    ? note.time % 8 + inputDuration > 8
-      ? `Only ${durationNames[effectiveDuration] || "the remaining"} fits here before the barline. The ${durationNames[inputDuration]} preference resumes where it fits.`
+  const durationNotice = rhythmEditable && inputDuration !== null && note && effectiveDuration !== inputDuration
+    ? !note.pitch && !note.rest && !note.tieStart && !note.tieStop
+      ? `Only ${durationNames[effectiveDuration] || "the remaining value"} fits here before ${note.time % 8 + inputDuration > 8 ? "the barline" : "the next written event"}. The ${durationNames[inputDuration]} preference resumes where it fits.`
       : `This position keeps its existing ${durationNames[effectiveDuration] || "assigned"} rhythm to protect written music. The ${durationNames[inputDuration]} preference resumes in an available slot.`
     : "";
   const shownFindings = model ? sampleFindings : findings;
@@ -850,6 +890,7 @@ function App() {
     : score
       ? tieAvailability(score, selected)
       : "Select a note.";
+  const restReason = score ? restAvailability(score, selected) : "Select a note.";
   const errors = shownFindings.filter((f) => f.severity === "error"),
     suggestions = shownFindings.filter((f) => f.severity === "suggestion"),
     needsReview = shownFindings.some((f) => f.basis === "review");
@@ -1287,13 +1328,19 @@ function App() {
                         <p className="hint">
                           Viewing a sample answer. Your draft is preserved;
                           return to your work to continue editing.
+                          {displayScore?.voices.some((voice) =>
+                            !voice.locked && assignedSpecies(displayScore, voice) === 2 &&
+                            voice.notes.some((n) => n.tieStart),
+                          ) && (
+                            <> Fux’s fuller second-species cadences sometimes use ties (pp. 95–96). The original answer retains them; ties are not available in your second-species line.</>
+                          )}
                         </p>
                       )}
                       <ScoreView
                         score={displayScore!}
                         selected={selected}
                         onSelect={select}
-                        onPitch={setPitch}
+                        onPitch={placePitch}
                         findings={shownFindings}
                         time={time}
                         inputDuration={model ? null : inputDuration}
@@ -1383,70 +1430,57 @@ function App() {
                         ))}
                         </div>
                         <div className="editor-group" role="group" aria-label="Rhythm controls">
+                        {rhythmEditable && (
                         <div className="duration-buttons" role="group" aria-label="Next note duration">
-                          {([
-                            [8, "Whole", "7", "\uE1D2"],
-                            [4, "Half", "6", "\uE1D3"],
-                            [2, "Quarter", "5", "\uE1D5"],
-                            [1, "Eighth", "4", "\uE1D7"],
-                          ] as const).map(([duration, name, shortcut, glyph]) => (
+                          <span className="rhythm-kind" aria-hidden="true">Notes</span>
+                          {floridValues.map(([duration, name, glyph, , dotted, shortcut]) => (
                             <button key={duration} type="button"
-                              aria-label={`${name} note (${shortcut})`}
+                              data-duration={duration}
+                              aria-label={`${name} note${shortcut ? ` (${shortcut})` : ""}`}
                               aria-pressed={effectiveDuration === duration}
-                              title={`${name} note · ${shortcut}`}
-                              disabled={!note || !!locked || !!score.path || !allowedEntryDurations(score, note.id).includes(duration)}
+                              title={`${name} note${shortcut ? ` · ${shortcut}` : ""}`}
+                              disabled={locked}
                               onClick={() => rhythm(duration)}>
-                              <RhythmIcon glyph={glyph} /><small aria-hidden="true">{shortcut}</small>
+                              <RhythmIcon glyph={dotted ? `${glyph} \uE1E7` : glyph} />
+                              {shortcut && <small aria-hidden="true">{shortcut}</small>}
                             </button>
                           ))}
                         </div>
-                        <select
-                          aria-label="Note duration"
-                          title={
-                            score.path
-                              ? "Assigned rhythm for this path study"
-                              : undefined
-                          }
-                          disabled={!note || locked || !!score.path}
-                          value={
-                            effectiveDuration
-                          }
-                          onChange={(e) => {
-                            rhythm(+e.target.value);
-                          }}
-                        >
-                          {[
-                            [8, "Whole"],
-                            [6, "Dotted half"],
-                            [4, "Half"],
-                            [3, "Dotted quarter"],
-                            [2, "Quarter"],
-                            [1, "Eighth"],
-                          ].map(([v, t]) => (
-                            <option key={v} value={v} disabled={!!note && !allowedEntryDurations(score, note.id).includes(Number(v))}>
-                              {t}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          disabled={!note || locked || !!score.path}
+                        )}
+                        {selectedSpecies === 5 ? (
+                          <div className="duration-buttons" role="group" aria-label="Place rest (0 uses the current duration)">
+                            <span className="rhythm-kind" aria-hidden="true">Rests <kbd>0</kbd></span>
+                            {floridValues.map(([duration, name, , glyph, dotted]) => {
+                              const reason = !rhythmEditable || restReason
+                                ? restReason || "Close the exercise with a sounding whole note."
+                                : entryDuration(score, selected, duration) !== duration
+                                  ? "That rest does not fit here without changing written music or crossing the barline."
+                                  : "";
+                              return (
+                                <button key={duration} type="button"
+                                  aria-label={`${name} rest`}
+                                  disabled={locked || !!reason}
+                                  title={reason || `Place ${name.toLowerCase()} rest · 0 uses the current duration`}
+                                  onClick={() => placeRest(duration)}>
+                                  <RhythmIcon glyph={dotted ? `${glyph} \uE1E7` : glyph}
+                                    restLine={duration === 8 ? "above" : duration === 4 || duration === 6 ? "below" : undefined} />
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ) : <button
+                          disabled={!!restReason}
+                          title={restReason || undefined}
+                          aria-pressed={!!note?.rest}
                           onClick={() =>
                             edit((s) => {
-                              const n = prepareEntry(
-                                s,
-                                selected,
-                                inputDuration,
-                              );
-                              if (n) {
-                                n.rest = !n.rest;
-                                n.pitch = null;
-                              }
+                              toggleRest(s, selected, inputDuration);
                             })
                           }
                         >
                           Rest
-                        </button>
-                        <button
+                        </button>}
+                        {selectedSpecies !== 2 && <button
                           disabled={!!tieReason}
                           aria-pressed={!!note?.tieStart}
                           aria-describedby="tie-availability"
@@ -1463,7 +1497,7 @@ function App() {
                           }
                         >
                           {note?.tieStart ? "Remove tie" : "Add tie"}
-                        </button>
+                        </button>}
                         </div>
                         {durationNotice && <div className="rhythm-notice" role="status">{durationNotice}</div>}
                         <div className="editor-group" role="group" aria-label="Line tools">

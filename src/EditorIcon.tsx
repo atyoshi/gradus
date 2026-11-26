@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 
-export function RhythmIcon({ glyph }: { glyph: string }) {
+export function RhythmIcon({ glyph, restLine }: { glyph: string; restLine?: "above" | "below" }) {
   const svg = useRef<SVGSVGElement>(null);
   useLayoutEffect(() => {
     let active = true;
@@ -13,13 +13,24 @@ export function RhythmIcon({ glyph }: { glyph: string }) {
       const x = (ink.actualBoundingBoxRight - ink.actualBoundingBoxLeft) / 2;
       const y = (ink.actualBoundingBoxDescent - ink.actualBoundingBoxAscent) / 2;
       svg.current.setAttribute("viewBox", `${x - 18} ${y - 22} 36 44`);
+      const line = svg.current.querySelector("line");
+      if (line) {
+        // Whole and half rests are visually identical blocks when centered alone.
+        const block = ctx.measureText(glyph[0]);
+        const edge = restLine === "above" ? -block.actualBoundingBoxAscent : block.actualBoundingBoxDescent;
+        line.setAttribute("x1", String(-block.actualBoundingBoxLeft - 4));
+        line.setAttribute("x2", String(block.actualBoundingBoxRight + 4));
+        line.setAttribute("y1", String(edge));
+        line.setAttribute("y2", String(edge));
+      }
     };
     center();
     document.fonts.ready.then(center);
     return () => { active = false; };
-  }, [glyph]);
+  }, [glyph, restLine]);
   return (
     <svg className="duration-glyph" ref={svg} viewBox="-18 -22 36 44" aria-hidden="true">
+      {restLine && <line stroke="currentColor" strokeWidth="1.4" />}
       <text fontFamily="Bravura" fontSize="32" fill="currentColor">{glyph}</text>
     </svg>
   );

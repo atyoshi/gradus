@@ -1,4 +1,4 @@
-import { type Score, blank, modes } from "./model";
+import { type Score, blank, modes, upgradeScore } from "./model";
 /** Path selection has a stable exercise identity and resumes that exact study. */
 export function pathStudy(
   seed: Score,
@@ -9,7 +9,7 @@ export function pathStudy(
     current?.path?.studyId === seed.id
       ? current
       : library.find((s) => s.path?.studyId === seed.id);
-  if (existing) return existing;
+  if (existing) return upgradeScore(existing, [seed]);
   const study = blank(seed);
   study.id = "path-" + seed.id;
   study.path = {

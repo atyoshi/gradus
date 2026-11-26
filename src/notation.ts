@@ -1,8 +1,10 @@
 import { Accidental, Dot, StaveNote } from "vexflow/bravura";
 import type { Note, Pitch } from "./model";
 
-export const notationDuration = (value: number) =>
-  value === 8 ? "w" : value >= 4 ? "h" : value >= 2 ? "q" : "8";
+const dottedValue = (value: number) => [6, 3, 1.5].includes(value);
+export const notationDuration = (value: number, countDots = false) =>
+  (value === 8 ? "w" : value >= 4 ? "h" : value >= 2 ? "q" : "8") +
+  (countDots && dottedValue(value) ? "d" : "");
 
 /** Group consecutive written eighths within each quarter-note beat. */
 export function eighthBeamGroups(notes: Note[]): number[][] {
@@ -32,13 +34,14 @@ export function engravedNote(
   clef: string,
   rest = false,
   previousAlter = 0,
+  countDots = false,
 ) {
   const note = new StaveNote({
     clef,
     // VexFlow's neutral rest key places whole rests on line four and
     // other rests on line three, independently of the clef or draft pitch.
     keys: rest ? ["r/4"] : [`${p.step.toLowerCase()}/${p.octave}`],
-    duration: notationDuration(value) + (rest ? "r" : ""),
+    duration: notationDuration(value, countDots) + (rest ? "r" : ""),
   });
   if (!rest && (p.alter || previousAlter !== p.alter))
     note.addModifier(
@@ -54,6 +57,7 @@ export function engravedNote(
                 : "n",
       ),
     );
-  if ([6, 3, 1.5].includes(value)) Dot.buildAndAttach([note], { all: true });
+  // The duration suffix gives VexFlow the ticks; the modifier draws the dot.
+  if (dottedValue(value)) Dot.buildAndAttach([note], { all: true });
   return note;
 }

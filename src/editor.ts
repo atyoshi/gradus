@@ -77,7 +77,7 @@ export function resetLinePattern(
     ? clone(original.notes).map((n) => ({
         ...n,
         pitch: null,
-        ...(assignedSpecies(score, voice) === 2
+        ...([2, 5].includes(assignedSpecies(score, voice))
           ? { tieStart: false, tieStop: false }
           : {}),
       }))

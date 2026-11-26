@@ -1,7 +1,8 @@
 import { test, expect } from "vitest";
 import { check } from "../src/rules";
 import { emptyPattern } from "../src/editor";
-import { pitch, type Score } from "../src/model";
+import { pitch, upgradeScore, type Score } from "../src/model";
+import { exportXML, importXML } from "../src/musicxml";
 
 // Duration units are eighth notes. See RULES.md and Fux (1725), pp. 56, 62–63, 72.
 function score(species: number, voices = 2): Score {
@@ -12,6 +13,18 @@ function score(species: number, voices = 2): Score {
     })) };
 }
 const finding = (s: Score, rule: string, id: string) => check(s).some((f) => f.rule === rule && f.notes.includes(id) && f.severity === "error");
+
+test("imported note values are preserved and diagnosed rather than quantized to the species", () => {
+  const source = score(2);
+  const [first, second] = source.voices[0].notes.slice(2, 4);
+  first.duration = 2;
+  second.time = first.time + first.duration;
+  second.duration = 6;
+  const imported = upgradeScore(importXML(new TextEncoder().encode(exportXML(source)), "rhythm.musicxml", 2, "Dorian"));
+  const notes = imported.voices[0].notes.filter((n) => n.time >= 8 && n.time < 16);
+  expect(notes.map(({ time, duration }) => [time, duration])).toEqual([[8, 2], [10, 6]]);
+  for (const note of notes) expect(finding(imported, "species-rhythm", note.id)).toBe(true);
+});
 
 test.each([
   [1, 8, false], [1, 4, true], [1, 2, true], [1, 1, true],
@@ -24,7 +37,7 @@ test.each([
   expect(finding(s, "species-rhythm", "v0n8")).toBe(error);
 });
 
-test.each([1, 2, 3, 4])("species %i requires a sounding whole note at the end", (species) => {
+test.each([1, 2, 3, 4, 5])("species %i requires a sounding whole note at the end", (species) => {
   const s = score(species);
   const n = s.voices[0].notes.find((note) => note.time === 32)!;
   expect(finding(s, "final-rhythm", n.id)).toBe(false);
@@ -33,6 +46,17 @@ test.each([1, 2, 3, 4])("species %i requires a sounding whole note at the end", 
   n.duration = 8;
   n.rest = true;
   expect(finding(s, "final-rhythm", n.id)).toBe(true);
+});
+
+test("two-voice second species rejects a second opening half rest", () => {
+  const s = score(2);
+  const [opening, upbeat] = s.voices[0].notes;
+  opening.pitch = null;
+  opening.rest = true;
+  expect(finding(s, "rest-placement", opening.id)).toBe(false);
+  upbeat.pitch = null;
+  upbeat.rest = true;
+  expect(finding(s, "rest-placement", upbeat.id)).toBe(true);
 });
 
 test("second species allows a whole penultimate note but not an interior one in two voices", () => {

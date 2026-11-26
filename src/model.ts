@@ -131,27 +131,44 @@ export function upgradeScore(s: Score, catalog: Score[] = []): Score {
       v.species ??= original.voices.find((w) => w.id === v.id)?.species;
     });
   }
-  return assignSpecies(next);
+  assignSpecies(next);
+  next.voices.forEach((voice) => clearSecondSpeciesTies(next, voice));
+  return next;
+}
+/** Normalize student work, never the locked cantus or historical answer. */
+export function clearSecondSpeciesTies(s: Score, voice: Voice) {
+  if (voice.locked || assignedSpecies(s, voice) !== 2) return;
+  for (const note of voice.notes) {
+    if (note.tieStart) note.tieStart = false;
+    if (note.tieStop) note.tieStop = false;
+  }
 }
 export function solutionMatches(s: Score) {
   return (
     !!s.solution &&
     s.solution.length === s.voices.length &&
-    s.voices.every(
-      (v, i) =>
-        v.notes.length === s.solution![i].notes.length &&
+    s.voices.every((v, i) => {
+      const answer = s.solution![i];
+      // The student line omits the source's exceptional ties. It can still
+      // use the original answer as a read-only model for the same slots.
+      const species = assignedSpecies(s, v);
+      const compareTies = v.locked || (species !== 2 &&
+        (species !== 5 || v.notes.some((n) => n.tieStart || n.tieStop)));
+      return (
+        v.notes.length === answer.notes.length &&
         v.notes.every((n, j) => {
-          const m = s.solution![i].notes[j];
+          const m = answer.notes[j];
           return (
             n.time === m.time &&
             n.duration === m.duration &&
             !!n.rest === !!m.rest &&
-            !!n.tieStart === !!m.tieStart &&
-            !!n.tieStop === !!m.tieStop &&
+            (!compareTies ||
+              (!!n.tieStart === !!m.tieStart && !!n.tieStop === !!m.tieStop)) &&
             (!v.locked || JSON.stringify(n.pitch) === JSON.stringify(m.pitch))
           );
-        }),
-    )
+        })
+      );
+    })
   );
 }
 export function blank(s: Score): Score {
@@ -162,9 +179,8 @@ export function blank(s: Score): Score {
     if (!v.locked)
       v.notes.forEach((n) => {
         if (!n.rest) n.pitch = null;
-        // Source answers may contain exceptional ties that are not part of
-        // the second-species rhythm assigned to the student's blank line.
-        if (assignedSpecies(b, v) === 2) {
+        // Second species has fixed attacks. Florid students choose their own ties.
+        if ([2, 5].includes(assignedSpecies(b, v))) {
           n.tieStart = false;
           n.tieStop = false;
         }

@@ -58,8 +58,8 @@ for (const value of [8, 6, 4, 3, 2, 1]) {
     const slot = page.locator('[data-note="entry0"]');
     await expect(slot).toBeVisible();
     await page
-      .getByLabel("Note duration", { exact: true })
-      .selectOption(String(value));
+      .getByRole("group", { name: "Next note duration" })
+      .locator(`button[data-duration="${value}"]`).click();
     await page.getByRole("button", { name: "Sharp", exact: true }).click();
     await page.locator(".score-scroll").scrollIntoViewIfNeeded();
     await slot.hover();
@@ -91,15 +91,17 @@ for (const value of [8, 6, 4, 3, 2, 1]) {
     await slot.click();
     const committed = page.locator('[id="vf-score-note-entry0"]');
     await expect(committed).toBeVisible();
-    // React can replace the SVG between visibility and geometry reads.
-    await expect.poll(async () => (await engraving(committed)).width).toBeGreaterThan(0);
-    const after = await engraving(committed);
-    expect(after.glyphs).toEqual(before.glyphs);
-    expect(after.heads).toBe(before.heads);
-    expect(after.stems).toBe(before.stems);
-    expect(after.flags).toBe(before.flags);
-    expect(after.width).toBeCloseTo(before.width, 0);
-    expect(after.height).toBeCloseTo(before.height, 0);
+    // React can replace the SVG between reads. Compare one complete snapshot
+    // each time rather than waiting for geometry and then reading a new node.
+    await expect(async () => {
+      const after = await engraving(committed);
+      expect(after.glyphs).toEqual(before.glyphs);
+      expect(after.heads).toBe(before.heads);
+      expect(after.stems).toBe(before.stems);
+      expect(after.flags).toBe(before.flags);
+      expect(after.width).toBeCloseTo(before.width, 0);
+      expect(after.height).toBeCloseTo(before.height, 0);
+    }).toPass({ timeout: 5000 });
     await expect(preview).toHaveCount(0);
   });
 }

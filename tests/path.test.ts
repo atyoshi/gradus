@@ -1,7 +1,7 @@
 import { test, expect } from "vitest";
 import fs from "node:fs";
 import { orderedPath, pathStudy } from "../src/path";
-import { clone, modes, parseKern, type Score } from "../src/model";
+import { clone, modes, parseKern, solutionMatches, type Score } from "../src/model";
 const templates: Score[] = JSON.parse(
   fs.readFileSync("public/sources/practice.json", "utf8"),
 );
@@ -13,6 +13,7 @@ test("choosing a path study loads that exact species, voices, mode, cantus and a
     expect(next.voices.length).toBe(seed.voices.length);
     expect(next.mode).toBe(seed.mode);
     for (let i = 0; i < seed.voices.length; i++) {
+      const omitSourceTies = !seed.voices[i].locked && [2, 5].includes(next.voices[i].species ?? 0);
       expect(
         next.voices[i].notes.map((n) => [
           n.time,
@@ -26,8 +27,8 @@ test("choosing a path study loads that exact species, voices, mode, cantus and a
           n.time,
           n.duration,
           !!n.rest,
-          !seed.voices[i].locked && next.voices[i].species === 2 ? false : !!n.tieStart,
-          !seed.voices[i].locked && next.voices[i].species === 2 ? false : !!n.tieStop,
+          !omitSourceTies && !!n.tieStart,
+          !omitSourceTies && !!n.tieStop,
         ]),
       );
       if (seed.voices[i].locked)
@@ -44,8 +45,8 @@ test("revisiting a path study resumes its notes instead of generating or substit
     alter: 0,
     octave: 4,
   };
-  expect(pathStudy(seed, [draft], null)).toBe(draft);
-  expect(pathStudy(seed, [], draft)).toBe(draft);
+  expect(pathStudy(seed, [draft], null)).toEqual(draft);
+  expect(pathStudy(seed, [], draft)).toEqual(draft);
   expect(pathStudy(templates[1], [draft], draft).path?.studyId).toBe(
     templates[1].id,
   );
@@ -74,4 +75,21 @@ test("the guided path includes every historical study across all six modes", () 
   expect(path.slice(0, 3).every((s) => s.cantusOnly)).toBe(true);
   const species = path.filter((s) => !s.cantusOnly).map((s) => s.species);
   expect(species).toEqual([...species].sort((a, b) => a - b));
+});
+
+test("a new florid draft omits model ties while resuming preserves a student's written tie", () => {
+  const row = JSON.parse(fs.readFileSync("public/sources/fux.json", "utf8"))
+    .find((r: { metadata: { id: string } }) => r.metadata.id === "gap_082");
+  const seed = parseKern(row);
+  const draft = pathStudy(seed, [], null);
+  const voice = draft.voices.find(v => !v.locked)!;
+  const model = seed.voices.find(v => v.id === voice.id)!;
+  expect(voice.notes.some(n => n.tieStart || n.tieStop)).toBe(false);
+  expect(model.notes.some(n => n.tieStart)).toBe(true);
+  expect(draft.solution).toEqual(seed.voices);
+  expect(solutionMatches(draft)).toBe(true);
+  const [first, second] = voice.notes.slice(1, 3);
+  first.pitch = second.pitch = { step: "A", octave: 4, alter: 0 };
+  first.tieStart = second.tieStop = true;
+  expect(pathStudy(seed, [draft], null)).toEqual(draft);
 });

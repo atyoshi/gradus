@@ -25,7 +25,7 @@
       "observation": "The corrected transcription retains three attacks of G. The discussion on pp.53–54 corrects a major-sixth leap and discusses the battuta; it does not establish our former numerical repetition ceiling. Repetition is craft advice, with no figure-ID exemption.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -55,7 +55,7 @@
       "observation": "The printed lower part contains the descending minor sixth G3–B2. Fux explicitly admits the minor-sixth leap on p.60 without the ascending-only restriction imposed by both checkers. The other modal inflection is retained for contextual review.",
       "editorialNotes": [],
       "currentStatus": "needs-review",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "mode",
@@ -93,18 +93,9 @@
       ],
       "observation": "The descending C5–E4 minor sixth is printed in the model. The p.60 minor-sixth allowance replaces our ascending-only restriction. The non-cadential inflection remains a separate contextual judgment.",
       "editorialNotes": [],
-      "currentStatus": "needs-review",
-      "currentRuleVersion": "fux-1725-v9",
-      "remainingFindings": [
-        {
-          "rule": "mode",
-          "notes": [
-            "v1n72"
-          ],
-          "message": "This pitch is outside the selected mode. Check whether a cadential inflection or musica ficta justifies it.",
-          "basis": "review"
-        }
-      ]
+      "currentStatus": "pass",
+      "currentRuleVersion": "fux-1725-v12",
+      "remainingFindings": []
     },
     {
       "id": "gap_055",
@@ -139,7 +130,7 @@
         }
       ],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -161,7 +152,7 @@
       "observation": "The lower part includes an inflected pitch. The discussion on pp.68–69 explicitly permits accidentals to avoid mi–fa relations, but scale membership alone does not settle this particular placement. Keep a review finding rather than claiming a definite modal error.",
       "editorialNotes": [],
       "currentStatus": "needs-review",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "mode",
@@ -193,7 +184,7 @@
       "observation": "The printed model contains a descending C5–E4 minor sixth. The ascending-only restriction was not supported by Fux’s p.60 allowance.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -216,7 +207,7 @@
       "observation": "The printed Phrygian suspension model contains a descending C5–E4 minor sixth. Retain the model and remove the unsupported directional ban.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -241,7 +232,7 @@
       "observation": "A fourth-species texture was judged with the second-species downbeat bridge test. Tied continuations and their resolutions require suspension analysis, not a blanket comparison of downbeat pitches.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -266,7 +257,7 @@
       "observation": "The florid model was subjected to the two-voice second-species downbeat prohibition. Keep adjacent attack parallels as errors; structural comparisons in florid writing need their own context.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -299,7 +290,7 @@
       "observation": "The printed florid model retains a repeated attack across unlike note values. The old blanket higher-species repetition prohibition and second-species downbeat test overreached. Florid rearticulation is now advice.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -322,7 +313,7 @@
       "observation": "The florid source rearticulates C. The source’s fifth-species examples are not governed by an unconditional ban on every repeated attack. Preserve the notes and explain the craft concern.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -345,7 +336,7 @@
       "observation": "The lower florid model rearticulates C across a quarter and half. Keep the source and distinguish this from a broken or mismatched tie.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -376,7 +367,7 @@
       "observation": "The descending F3–A2 minor sixth is supported by the p.60 allowance. The B-flat/B-natural reading is a separate accidental-scope or modal-context question; the printed flat and supplied transcription are preserved, not silently respelled.",
       "editorialNotes": [],
       "currentStatus": "needs-review",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "chromatic-motion",
@@ -409,7 +400,7 @@
       "observation": "The source’s descending C5–E4 minor sixth was rejected solely for its direction. Fux admits the minor sixth on p.60.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -431,7 +422,7 @@
       "observation": "The printed cadence ties across a barline in the second-species three-voice study. Fux explicitly discusses the necessity of these cadential ties on p.96.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -453,7 +444,7 @@
       "observation": "The cadence retains the same cadential-tie exception discussed on p.96. Do not apply the two-voice second-species tie prohibition to this fuller cadence.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -491,7 +482,7 @@
       "observation": "The p.96 model includes the cadential bass suspension and leading-tone diminished-fifth sonority. Support requires the characteristic stepwise resolutions; it is not blanket permission for diminished fifths against the bass.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -526,7 +517,7 @@
       "observation": "The source belongs to the fuller-texture discussion on pp.94–98, where an intervening half-note skip can excuse a progression for the triad. Our hard two-voice downbeat rule did not encode that distinction.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -548,7 +539,7 @@
       "observation": "The cadential tie is printed in the lower moving part. Read with the explicit p.96 fuller-texture exception, while retaining ordinary tie validity checks.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -570,7 +561,7 @@
       "observation": "The printed three-voice second-species cadence uses the p.96 tie exception; this is not an arbitrary change of species throughout the exercise.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -592,7 +583,7 @@
       "observation": "The printed upper moving part uses a cadential tie. Limit the exception to the cadential region in a fuller texture and check matching endpoints.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -624,7 +615,7 @@
       "observation": "The structural-parallel error came from applying a second-species rule to quarters. The accidental is retained under the pp.68–69 contextual ficta discussion; its exact voice-leading interpretation remains reviewable.",
       "editorialNotes": [],
       "currentStatus": "needs-review",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "mode",
@@ -658,7 +649,7 @@
       "observation": "Three voices in quarters were judged with a hard second-species downbeat rule. The accompanying text at pp.99–102 discusses a consonant framework and triadic context rather than that blanket test.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -683,7 +674,7 @@
       "observation": "The hard structural downbeat result ignored the third-species fuller texture. Keep actual adjacent parallels distinct from this contextual structural comparison.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -713,7 +704,7 @@
       "observation": "The descending C4–E3 minor sixth is supported by p.60. The supplied inflection is a separate contextual issue; preserve its spelling and link the printed example and ficta discussion.",
       "editorialNotes": [],
       "currentStatus": "needs-review",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "mode",
@@ -911,7 +902,7 @@
       "observation": "The text on p.102 explicitly combines quarters, halves and a whole-note cantus. Per-voice assignments repair the rhythm errors. A dissonance involving simultaneous moving parts remains outside the settled treatment and stays flagged.",
       "editorialNotes": [],
       "currentStatus": "violations",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "dissonance",
@@ -952,7 +943,7 @@
       "observation": "The question on p.106 and answer on p.107 explicitly permit a dissonant preparation over a stationary bass. Implement this only when the bass remains stationary and the tied pitch resolves correctly.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -982,7 +973,7 @@
       "observation": "Fux accepts the initial whole-bar bass rest on p.108; the next half-rest delays its first sounding entry further. The cadence also uses the fuller suspension/leading-tone pattern. Neither justifies arbitrary weak-position rests or unprepared suspensions.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -1007,7 +998,7 @@
       "observation": "The three-voice tied texture was misclassified by a hard downbeat-parallel test. Read with the discussion on pp.104–106 explaining why suspensions and resolutions change the judgment.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -1042,7 +1033,7 @@
       "observation": "The blanket downbeat comparison ignored the suspension texture. The p.110 text explicitly discusses the restricted exercise and its harmonic compromises.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -1087,7 +1078,7 @@
       "observation": "Structural downbeat pitches in the suspension study were treated as attacked second-species parallels. Remove that conflation while retaining checks of actual attacks and tie resolution.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -1127,7 +1118,7 @@
       "observation": "The printed bass has an interior half-rest on a downbeat and a fuller cadential suspension. Read with the accepted rest in the p.108 discussion and the restricted suspension texture on p.110; retain the original notes.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -1158,7 +1149,7 @@
       "observation": "The middle florid voice on pp.112–113 descends a third into the first of two eighths, then steps back twice to the starting pitch. This specific consonant-entry ornament differs from an arbitrary leap into an eighth.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -1181,7 +1172,7 @@
       "observation": "The lower florid voice retains the fuller cadential suspension and leading-tone diminished-fifth resolution also demonstrated in p.96. Check the complete resolution instead of banning the sonority in isolation.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -1219,7 +1210,7 @@
       "observation": "The printed florid voice uses the same descending-third/two-step eighth ornament as the earlier models, now supported structurally. Its opening inflection remains a distinct modal-context question.",
       "editorialNotes": [],
       "currentStatus": "needs-review",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "mode",
@@ -1251,7 +1242,7 @@
       "observation": "The printed B-flat followed by the supplied B-natural reading needs accidental-scope interpretation. A chromatic inflection is not a seventh or an augmented leap; preserve it as an explicit review question rather than respelling the music.",
       "editorialNotes": [],
       "currentStatus": "needs-review",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "chromatic-motion",
@@ -1284,7 +1275,7 @@
       "observation": "The middle voice likewise contains the supplied B-flat/B-natural transition. Keep the original spelling and distinguish accidental interpretation from a prohibited melodic leap.",
       "editorialNotes": [],
       "currentStatus": "needs-review",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "chromatic-motion",
@@ -1326,7 +1317,7 @@
       "observation": "The original four-voice quarter-note model includes an inflection; the second-species downbeat test was overapplied. The fuller-texture text on pp.124–125 explicitly tolerates some departures under whole-note constraints, but the exact inflection stays reviewable.",
       "editorialNotes": [],
       "currentStatus": "needs-review",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "mode",
@@ -1360,7 +1351,7 @@
       "observation": "The p.125 discussion explicitly tolerates a progression constrained by whole-note accompanying parts. Our universal hard downbeat bridge test could not express that context.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -1383,7 +1374,7 @@
       "observation": "The printed Phrygian example and supplied G-sharp/C spelling produce a diminished-fourth relation under strict spelling. The ordinary passing-tone model does not settle it; preserve the score and keep the actual finding visible for further contextual/transcription review.",
       "editorialNotes": [],
       "currentStatus": "violations",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "dissonance",
@@ -1415,7 +1406,7 @@
       "observation": "The opening inflection appears in the supplied quarter-note line. A blanket scale-membership verdict is insufficient; retain the p.129 source and explain the outstanding modal interpretation.",
       "editorialNotes": [],
       "currentStatus": "needs-review",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "mode",
@@ -1446,7 +1437,7 @@
       "observation": "The source’s opening inflection is retained. The parser does not silently normalize it to satisfy the checker; modal context requires review.",
       "editorialNotes": [],
       "currentStatus": "needs-review",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "mode",
@@ -1478,7 +1469,7 @@
       "observation": "The descending C4–E3 minor sixth is allowed. The remaining altered-interval interactions at the opening are not settled by the basic quarter-note figures. Preserve the printed/supplied reading and its remaining findings.",
       "editorialNotes": [],
       "currentStatus": "violations",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "dissonance",
@@ -1522,7 +1513,7 @@
       "observation": "The printed accompanying parts sometimes divide a whole note; p.135 explicitly discusses these divisions. Do not assign the suspension species to every part or treat held downbeat pitches as attacked parallels.",
       "editorialNotes": [],
       "currentStatus": "pass",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": []
     },
     {
@@ -1553,7 +1544,7 @@
       "observation": "The p.137 model combines a moving bass with divided accompanying voices and altered intervals. The p.138 text expressly permits dividing the whole notes when needed; the remaining multi-part dissonances still require richer analysis.",
       "editorialNotes": [],
       "currentStatus": "violations",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "dissonance",
@@ -1925,7 +1916,7 @@
       "observation": "The p.138 text explicitly combines halves, quarters and suspensions. Per-voice species remove the false rhythm violations. Simultaneous dissonance treatment between the moving voices remains an outstanding analysis limit; the score is not rewritten or declared clean.",
       "editorialNotes": [],
       "currentStatus": "violations",
-      "currentRuleVersion": "fux-1725-v9",
+      "currentRuleVersion": "fux-1725-v12",
       "remainingFindings": [
         {
           "rule": "dissonance",
@@ -1985,8 +1976,8 @@
     }
   ],
   "summary": {
-    "pass": 106,
-    "needs-review": 12,
+    "pass": 107,
+    "needs-review": 11,
     "violations": 5
   }
 }

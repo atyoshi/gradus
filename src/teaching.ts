@@ -35,7 +35,7 @@ export const lessons: Lesson[] = [
     why: "Two moving voices can arrive at the same kind of perfect interval in parallel. Contrary motion moves them in opposite directions; oblique motion leaves one voice still. These are different musical events.",
     action:
       "Compare both voices before and after the interval. In two-voice first species, approach perfect consonances by contrary or oblique motion. In higher species, also listen to the structural beats and the intervening notes.",
-    pages: "41–42, 49–50, 57–60, 94–98, 104–106",
+    pages: "41–42, 49–50, 53–54, 57–60, 94–98, 104–106",
   },
   {
     id: "melody",
@@ -135,6 +135,7 @@ const ruleLessons: Record<string, string> = {
   "opening-sonority": "openings",
   parallels: "motion",
   "direct-perfect": "motion",
+  "contrary-leap-perfect": "motion",
   "downbeat-parallels": "motion",
   "interior-unison": "motion",
   crossing: "motion",
@@ -143,6 +144,7 @@ const ruleLessons: Record<string, string> = {
   "full-sonority": "openings",
   dissonance: "passing",
   "chromatic-clash": "mode",
+  "cross-relation": "mode",
   mode: "mode",
   "chromatic-motion": "mode",
   "source-editorial": "mode",
@@ -153,8 +155,10 @@ const ruleLessons: Record<string, string> = {
   cadence: "cadences",
   "leading-tone": "cadences",
   "cadential-interval": "cadences",
+  "cadential-downbeat": "cadences",
   "final-bass": "cadences",
   "final-sonority": "cadences",
+  "avoidable-final-third": "cadences",
   "multivoice-cadence": "cadences",
   "final-rhythm": "cadences",
   "doubled-leading-tone": "cadences",
@@ -200,9 +204,11 @@ export function explainFindings(s: Score, findings: Finding[]): Finding[] {
       details,
       action: lesson.action,
       source:
-        f.rule === "source-editorial"
-          ? f.source
-          : `Fux (1725), pp. ${lesson.pages}.`,
+        f.rule === "cross-relation"
+          ? "Strict first-species practice profile; see Fux for historical accidental context."
+          : f.rule === "source-editorial"
+            ? f.source
+            : `Fux (1725), pp. ${lesson.pages}.`,
       reference: {
         title: "Gradus ad Parnassum (1725)",
         url: f.rule === "source-editorial" && s.source ? s.source.url : FUX_URL,

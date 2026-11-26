@@ -1,11 +1,14 @@
-import { extendedTieNotes } from "./ties.ts";
+import { crossesBarline, extendedTieNotes, permitsSpeciesTie } from "./ties.ts";
+import { isClosingBar, permitsRest } from "./rhythm.ts";
 import {
   type Score,
   type Note,
+  type Pitch,
   type Finding,
   type Voice,
   midi,
   degree,
+  pitch,
   at,
   complete,
   assignedSpecies,
@@ -116,6 +119,40 @@ function anchorConsonance(
   if (unknownBass(s, a.time) && consonant(a, b, true)) return undefined;
   const cadence = cadentialFifth(s, a, b, a.time);
   return cadence === "pending" ? undefined : cadence === "yes";
+}
+/** Fux Fig. 42: the upper half notes 6♯–7♯ form P5–M6 over scale degree 2.
+ * An empty slot can still complete the figure; a written rest or wrong note cannot. */
+function aeolianCadentialConflicts(s: Score, v: Voice, n: Note, sixth: Pitch): Note[] | undefined {
+  const end = (s.bars - 1) * 8;
+  const given = s.voices[1];
+  if (
+    s.mode !== "Aeolian" || s.voices.length !== 2 || s.voices[0] !== v ||
+    !given.locked || assignedSpecies(s, v) !== 2 ||
+    n.time !== end - 8 || n.duration !== 4 || n.rest
+  ) return;
+  const leading = at(v, end - 4), final = at(v, end);
+  const bass = at(given, end - 8), bassFinal = at(given, end);
+  if (
+    !leading || leading.time !== end - 4 || leading.duration !== 4 ||
+    !final || final.time !== end || final.duration !== 8 ||
+    !bass?.pitch || bass.rest || bass.time !== end - 8 || bass.duration !== 8 ||
+    !bassFinal?.pitch || bassFinal.rest || bassFinal.time !== end
+  ) return;
+  const start = interval({ ...n, pitch: sixth }, bass);
+  const sixthMidi = midi(sixth), sixthDegree = degree(sixth);
+  if (
+    start.diatonic !== 5 || start.semitones !== 7 || sixthMidi <= midi(bass.pitch) ||
+    degree(bass.pitch) - degree(bassFinal.pitch) !== 1 || midi(bass.pitch) - midi(bassFinal.pitch) !== 2
+  ) return;
+  const conflicts: Note[] = [];
+  if (leading.rest || (leading.pitch && (degree(leading.pitch) !== sixthDegree + 1 || midi(leading.pitch) !== sixthMidi + 2)))
+    conflicts.push(leading);
+  if (final.rest || (final.pitch && (degree(final.pitch) !== sixthDegree + 2 || midi(final.pitch) !== sixthMidi + 3)))
+    conflicts.push(final);
+  return conflicts;
+}
+export function fitsAeolianCadentialSixth(s: Score, v: Voice, n: Note, sixth: Pitch) {
+  return aeolianCadentialConflicts(s, v, n, sixth)?.length === 0;
 }
 function baseCheck(s: Score): Finding[] {
   const out: Finding[] = [];
@@ -230,16 +267,18 @@ function baseCheck(s: Score): Finding[] {
         (n.time === 0 || n.time >= (s.bars - 1) * 8) &&
         relative === 4 &&
         s.voices.length > 2;
+      const sixthConflicts = relative === 9 ? aeolianCadentialConflicts(s, v, n, n.pitch) : undefined;
       if (
         !modalSteps[s.mode]?.includes(relative) &&
         !borrowed &&
         !cadential &&
-        !picardy
+        !picardy &&
+        sixthConflicts?.length !== 0
       )
         add(
           "mode",
           "This pitch is outside the selected mode. Check whether a cadential inflection or musica ficta justifies it.",
-          [n],
+          [n, ...(sixthConflicts ?? [])],
           "suggestion",
         );
       if (
@@ -366,21 +405,22 @@ function baseCheck(s: Score): Finding[] {
             continue;
           const dx = midi(x.pitch) - midi(p.pitch),
             dy = midi(y.pitch) - midi(q.pitch);
-          const bridge = [va, vb].some((v) => {
-            const ns = v.notes.filter(
-              (n) => n.time >= t - 8 && n.time <= t && n.pitch && !n.rest,
-            );
-            return ns.some(
+          const intervening = [va, vb].map((v) => v.notes.filter(
+            (n) => n.time > t - 8 && n.time < t && !n.rest,
+          ));
+          if (intervening.some((line) => line.some((n) => !n.pitch))) continue;
+          const bridge = [[p, ...intervening[0], x], [q, ...intervening[1], y]].some((ns) =>
+            ns.some(
               (n, i) =>
                 i > 0 &&
                 Math.abs(degree(n.pitch!) - degree(ns[i - 1].pitch!)) >= 3,
-            );
-          });
+            ),
+          );
           if (dx && dy && Math.sign(dx) === Math.sign(dy) && !bridge)
             add(
               "downbeat-parallels",
               "These downbeats form successive perfect intervals. In two-voice second species, a small intervening step or third does not hide the parallel; larger leaps and fuller textures need context.",
-              [p, q, x, y],
+              [p, q, ...intervening.flat(), x, y],
               pairSpecies === 2 && s.voices.length === 2
                 ? "error"
                 : "suggestion",
@@ -680,6 +720,41 @@ function baseCheck(s: Score): Finding[] {
           const dx = midi(x.pitch) - midi(previous.x.pitch),
             dy = midi(y.pitch) - midi(previous.y.pitch);
           if (
+            pairSpecies === 1 && t % 8 === 0 && previous.t === t - 8 &&
+            x.time === t && y.time === t && !x.tieStop && !y.tieStop &&
+            previous.x.time + previous.x.duration === t &&
+            previous.y.time + previous.y.duration === t &&
+            ix.diatonic !== 1 && iy.diatonic !== 1
+          )
+            for (const [before, after] of [[previous.x, y], [previous.y, x]]) {
+              if (before.pitch!.step === after.pitch!.step &&
+                before.pitch!.alter !== after.pitch!.alter)
+                add(
+                  "cross-relation",
+                  "Different forms of the same note occur in different voices in adjacent first-species bars. Keep the inflection consistent between the voices.",
+                  [before, after],
+                );
+            }
+          const xWasAbove = midi(previous.x.pitch) > midi(previous.y.pitch);
+          const [upperBefore, upperAfter] = xWasAbove
+            ? [previous.x.pitch, x.pitch]
+            : [previous.y.pitch, y.pitch];
+          // Figs. 17–18 show an upper leap over a rising lower part. Do not
+          // generalize to a step over a rising bass leap (e.g. Fig. 111).
+          if (
+            pairSpecies === 1 && s.voices.length <= 3 &&
+            iy.diatonic === 1 && iy.semitones === 0 &&
+            (xWasAbove ? dx < 0 && dy > 0 : dy < 0 && dx > 0) &&
+            midi(upperAfter) >= midi(xWasAbove ? y.pitch : x.pitch) &&
+            degree(upperBefore) - degree(upperAfter) > 1 &&
+            anchorConsonance(s, previous.x, vb) === true
+          )
+            add(
+              "contrary-leap-perfect",
+              "Do not leap down into an octave or unison while the lower part rises toward it. A stepwise approach to the octave is different.",
+              [previous.x, previous.y, x, y],
+            );
+          if (
             dx &&
             dy &&
             Math.sign(dx) === Math.sign(dy) &&
@@ -758,7 +833,7 @@ function baseCheck(s: Score): Finding[] {
   return [...new Map(out.map((f) => [f.rule + f.notes.join(","), f])).values()];
 }
 
-export const RULE_VERSION = "fux-1725-v9";
+export const RULE_VERSION = "fux-1725-v12";
 export function check(s: Score): Finding[] {
   const out = baseCheck(s);
   const add = (
@@ -925,7 +1000,11 @@ export function check(s: Score): Finding[] {
           );
       }
     if (species === 4) {
-      const moving = v.notes.some((n) => n.tieStart || n.tieStop);
+      const moving = v.notes.some((n, i) => {
+        const next = v.notes[i + 1];
+        return n.tieStart && !!next?.tieStop && !n.rest && !next.rest &&
+          crossesBarline(n, next);
+      });
       const entered = v.notes.some((n) => n.pitch && !n.rest);
       if (!moving && entered)
         add(
@@ -1012,40 +1091,52 @@ export function check(s: Score): Finding[] {
       }
       prev = { a, b };
     }
+    const cf = s.voices.find((v) => v.locked)!;
+    const cpSpecies = assignedSpecies(s, cp);
+    const end = (s.bars - 1) * 8;
+    if (cpSpecies === 2) {
+      const downbeat = at(cp, end - 8), given = at(cf, end - 8);
+      if (downbeat?.pitch && given?.pitch && !downbeat.rest && !given.rest &&
+        downbeat.time === end - 8 && downbeat.duration === 4) {
+        const i = interval(downbeat, given);
+        const phrygianBelow = s.mode === "Phrygian" && top.locked;
+        if (!(i.diatonic === 5 && i.semitones === 7) &&
+          !(phrygianBelow && i.diatonic === 6 && i.semitones === 8))
+          add(
+            "cadential-downbeat",
+            phrygianBelow
+              ? "Begin the penultimate bar with a perfect fifth or the Phrygian minor-sixth alternative."
+              : "Begin the penultimate bar of two-voice second species with a perfect fifth.",
+            [downbeat, given],
+          );
+      }
+    }
     const final = cp.notes.at(-1),
       penult = cp.notes.at(-2);
     if (final?.pitch && penult?.pitch) {
-      const cf = s.voices.find((v) => v.locked)!,
-        other = at(cf, penult.time);
+      const other = at(cf, penult.time);
       if (other?.pitch) {
         const i = interval(penult, other);
-        if (!(
-          (i.diatonic === 6 && i.semitones === 9) ||
-          (i.diatonic === 3 && i.semitones === 3)
-        ))
+        const majorSixth = i.diatonic === 6 && i.semitones === 9;
+        const minorThird = i.diatonic === 3 && i.semitones === 3;
+        const positional = cpSpecies <= 2;
+        if (!(positional ? (top.locked ? minorThird : majorSixth) : majorSixth || minorThird))
           add(
             "cadential-interval",
-            "Prepare the two-voice ending with a major sixth opening to an octave or a minor third closing to a unison.",
+            !positional
+              ? "Prepare the two-voice ending with a major sixth opening to an octave or a minor third closing to a unison."
+              : top.locked
+                ? "Use a minor third before the final when the cantus is in the upper voice."
+                : "Use a major sixth before the final when the cantus is in the lower voice.",
             [penult, other, final],
           );
       }
     }
   }
   for (const v of vs) {
-    const species = assignedSpecies(s, v);
     for (let k = 0; k < v.notes.length; k++) {
       const n = v.notes[k];
-      const chainRest =
-        s.voices.length > 2 &&
-        species === 4 &&
-        [4, 8].includes(n.duration) &&
-        n.time % 8 === 0;
-      const openingRest = !v.notes.slice(0, k).some((p) => !p.rest);
-      if (
-        n.rest &&
-        (species === 1 || (species < 5 && n.time > 0 && !openingRest)) &&
-        !chainRest
-      )
+      if (n.rest && !isClosingBar(s, n) && !permitsRest(s, v, n))
         add(
           "rest-placement",
           "Use rests only in the documented opening position for this species.",
@@ -1057,8 +1148,7 @@ export function check(s: Score): Finding[] {
         !n.rest &&
         v.notes[k + 1]?.pitch &&
         !v.notes[k + 1]?.rest &&
-        species < 4 &&
-        !(s.voices.length > 2 && n.time + n.duration >= (s.bars - 2) * 8)
+        !permitsSpeciesTie(s, v, n)
       )
         add(
           "species-tie",
@@ -1080,14 +1170,16 @@ export function check(s: Score): Finding[] {
         ),
       ),
     ].sort((a, b) => a - b);
+    // Unwritten notes may sound at an earlier structurally complete onset.
+    // A real rest, unlike a blank, rules out that onset for the opening check.
     const firstTime = moments.find((t) =>
       s.voices.every((v) => {
         const n = at(v, t);
-        return n?.pitch && !n.rest;
+        return n && !n.rest;
       }),
     );
-    if (cfFinal && firstTime !== undefined) {
-      const first = s.voices.map((v) => at(v, firstTime)!) as Note[];
+    const first = firstTime === undefined ? [] : s.voices.map((v) => at(v, firstTime)!);
+    if (cfFinal && first.length && first.every((n) => n.pitch)) {
       const bass = first.reduce((a, b) =>
         midi(a.pitch!) < midi(b.pitch!) ? a : b,
       );
@@ -1129,6 +1221,42 @@ export function check(s: Score): Finding[] {
             "Use the modal final, perfect fifth, octave, or permitted major third in the final sonority.",
             [bass, n],
           );
+        const root = bass.pitch!;
+        if (
+          s.voices.length === 3 && s.species === 1 &&
+          ["Dorian", "Phrygian", "Aeolian"].includes(s.mode) &&
+          cf && (midi(cf) - midi(root)) % 12 === 0 &&
+          i.diatonic === 3 && i.semitones === 4 &&
+          s.voices.find((v) => v.locked)!.notes.some(({ pitch: given, rest }) =>
+            given && !rest &&
+            ((degree(given) - degree(root)) % 7 + 7) % 7 === 2 &&
+            ((midi(given) - midi(root)) % 12 + 12) % 12 === 3)
+        ) {
+          const voice = s.voices.find((v) => !v.locked && v.notes.includes(n));
+          const prior = voice && at(voice, end - 8);
+          // Fux's exception is contextual: require the fifth only when it
+          // can replace the third without new voice-leading problems.
+          if (voice && prior?.pitch && !prior.rest && s.voices.every((v) => at(v, end - 8)?.pitch)) {
+            const available = [0, 1, 2].some((octaves) => {
+              const natural = pitch(degree(root) + 4 + 7 * octaves);
+              const fifth = { ...natural, alter: midi(root) + 7 + 12 * octaves - midi(natural) };
+              if (Math.abs(midi(fifth) - midi(prior.pitch!)) > 12) return false;
+              const candidate: Score = {
+                ...s,
+                voices: s.voices.map((v) => v === voice
+                  ? { ...v, notes: v.notes.map((note) => note === n ? { ...note, pitch: fifth } : note) }
+                  : v),
+              };
+              return !baseCheck(candidate).some((finding) => finding.notes.includes(n.id));
+            });
+            if (available)
+              add(
+                "avoidable-final-third",
+                "The cantus establishes a minor third in this mode. Use the available perfect fifth rather than raising the third in the final chord.",
+                [bass, prior, n],
+              );
+          }
+        }
       }
       const arrivals = s.voices.map((v) => {
         const n = at(v, end)!;

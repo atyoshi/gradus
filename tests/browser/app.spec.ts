@@ -176,7 +176,7 @@ test("blank slots, transient pitch preview, one system, harmless selection and d
   await expect(slot).toHaveAttribute("aria-label", new RegExp(proposed!));
   await expect(
     page.getByRole("button", { name: "Rest", exact: true }),
-  ).toBeEnabled();
+  ).toBeDisabled();
   const before = await slot.getAttribute("aria-label");
   await slot.focus();
   await slot.press("Enter");

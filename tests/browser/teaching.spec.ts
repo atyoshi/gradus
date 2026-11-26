@@ -20,6 +20,44 @@ const rows = JSON.parse(fs.readFileSync("public/sources/fux.json", "utf8"));
 const source = (id: string) =>
   parseKern(rows.find((r: any) => r.metadata.id === id));
 
+test("the Aeolian second-species cadence passes and still rejects the wrong fifth", async ({ page }) => {
+  const s = source("gap_042");
+  const downbeat = s.voices[0].notes.at(-3)!;
+  await recover(page, s);
+  const passed = page.getByRole("heading", { name: "Practice checks passed." });
+  await expect(passed).toBeVisible();
+  const slot = page.locator(`[data-note="${downbeat.id}"]`);
+  await slot.focus();
+  await slot.press("Enter");
+  await page.getByRole("button", { name: "Natural", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Rule violations" })
+    .getByRole("button", { name: /Cadential downbeat Bar 10/ })).toBeVisible();
+  await page.getByRole("button", { name: "Sharp", exact: true }).click();
+  await expect(passed).toBeVisible();
+  expect((await draft(page)).voices[0].notes.at(-3).pitch).toEqual(downbeat.pitch);
+});
+
+test("a recovered first-species cross-relation is flagged until the sharp is corrected", async ({ page }) => {
+  const s = blank(source("gap_116"));
+  const [upper, cantus, lower] = s.voices;
+  upper.notes[0].pitch = { step: "C", octave: 5, alter: 1 };
+  upper.notes[1].pitch = { step: "A", octave: 4, alter: 0 };
+  for (const note of lower.notes.slice(0, 2))
+    note.pitch = { step: "A", octave: 2, alter: 0 };
+  await recover(page, s);
+  const finding = page.getByRole("region", { name: "Rule violations" })
+    .getByRole("button", { name: /Cross relation Bars 1–2/ });
+  await expect(finding).toBeVisible();
+  await expect(page.getByRole("img", { name: "Voice 2, bar 2: rule violation" })).toBeVisible();
+  const opening = page.locator(`[data-note="${upper.notes[0].id}"]`);
+  await opening.focus();
+  await opening.press("Enter");
+  await page.getByRole("button", { name: "Natural", exact: true }).click();
+  await expect(finding).toHaveCount(0);
+  expect((await draft(page)).voices[0].notes[0].pitch.alter).toBe(0);
+  expect((await draft(page)).voices[1].notes).toEqual(cantus.notes);
+});
+
 test("finding lessons play and preserve the draft, selection and undo history", async ({
   page,
 }) => {

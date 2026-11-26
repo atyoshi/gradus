@@ -6,7 +6,7 @@
     },
     "2v species 2": {
       "all": 12,
-      "checked": 10
+      "checked": 11
     },
     "2v species 3": {
       "all": 6,
@@ -192,7 +192,7 @@
       "id": "gap_042",
       "species": 2,
       "voices": 2,
-      "verified": false,
+      "verified": true,
       "errors": []
     },
     {
